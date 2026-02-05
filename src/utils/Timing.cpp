@@ -16,7 +16,6 @@ const int EEPROM_MISSION_TIME_ADDR = 0;
 const int EEPROM_TIME_SET_FLAG_ADDR = 10;
 
 void initTiming() {
-    // TODO: Initialize timing system
     // Restore mission time from persistent storage (required: F2)
     restoreMissionTime();
 }

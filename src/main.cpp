@@ -14,8 +14,8 @@ const uint32_t TELEMETRY_PERIOD_MS = 1000;  // 1 Hz telemetry (required: X4, C9)
 uint32_t lastLoopTime = 0;
 uint32_t lastTelemetryTime = 0;
 
-// Team ID - MUST BE SET TO YOUR TEAM NUMBER
-const uint16_t TEAM_ID = 1057;  // TODO: Set your team ID
+// Team ID
+const uint16_t TEAM_ID = 1057; 
 
 void setup() {
     // Initialize serial communication
@@ -41,7 +41,7 @@ void setup() {
     
     // TODO: Set target GPS coordinates for paraglider navigation
     // This should be set to the target landing location coordinates
-    setTargetLocation(38.0315f, -78.5100f); // UVA coordinates (example)
+    setTargetLocation(38.375833f, -79.607778f);
     // The target location should be set before launch
     
     Serial.println("CanSat Flight Software Initialized");
@@ -52,7 +52,7 @@ void setup() {
 void loop() {
     uint32_t now_ms = millis();
     
-    // High frequency main loop for responsiveness
+    // High frequency main loop
     if (now_ms - lastLoopTime >= MAIN_LOOP_PERIOD_MS) {
         lastLoopTime = now_ms;
         

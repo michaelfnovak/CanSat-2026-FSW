@@ -13,7 +13,7 @@ static uint16_t teamID = 0;
 void initCommands() {
     // TODO: Initialize command processing system
     // Set up command buffer, parser, etc.
-    teamID = 0;  // Must be set via setTeamID()
+    teamID = 1057; 
 }
 
 void setTeamID(uint16_t id) {
@@ -48,7 +48,7 @@ bool processSTCommand(const char* timeStr) {
     if (timeStr == nullptr) {
         return false;
     }
-    
+        
     if (setMissionTime(timeStr)) {
         char echo[32];
         snprintf(echo, sizeof(echo), "ST%s", timeStr);

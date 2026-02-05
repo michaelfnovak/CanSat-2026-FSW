@@ -142,11 +142,8 @@ bool isSimulationMode() {
 
 void setSimulatedPressure(float pressure_pa) {
     simulatedPressure = pressure_pa;
-    // TODO: Calculate altitude from simulated pressure
-    // Use barometric formula: altitude = 44330 * (1 - (P/P0)^0.1903)
-    // where P0 = sea level pressure (typically 101325 Pa)
     const float P0 = 101325.0f;  // Sea level pressure in Pa
-    currentAltitude = 44330.0f * (1.0f - powf(pressure_pa / P0, 0.1903f));
+    currentAltitude = 44330.0f * (1.0f - powf(pressure_pa / P0, 0.1903f)); // barometric formula
     currentPressure = pressure_pa / 1000.0f;  // Convert to kPa
 }
 
