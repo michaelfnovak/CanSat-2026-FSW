@@ -1,6 +1,6 @@
 #include "Timing.h"
 #include <Arduino.h>
-#include <EEPROM.h>  // For persistent storage (required: F2)
+#include <EEPROM.h>  // Teensy 4.1 EEPROM library (emulated in flash)
 #include <math.h>
 
 // Mission time storage
@@ -10,7 +10,8 @@ static uint8_t missionSecond = 0;
 static bool timeSet = false;
 static uint32_t missionTimeOffset = 0;  // Offset from system time
 
-// EEPROM addresses for persistent storage
+// EEPROM addresses for persistent storage (Teensy 4.1 has 8KB EEPROM emulation)
+// Reserve addresses 0-15 for mission time data
 const int EEPROM_MISSION_TIME_ADDR = 0;
 const int EEPROM_TIME_SET_FLAG_ADDR = 10;
 
@@ -97,20 +98,35 @@ uint32_t getCurrentTimeMs() {
 
 void saveMissionTime() {
     // Save mission time to EEPROM (required: F2 - maintain through resets)
-    // TODO: Implement EEPROM write
-    // EEPROM.write(EEPROM_MISSION_TIME_ADDR, missionHour);
-    // EEPROM.write(EEPROM_MISSION_TIME_ADDR + 1, missionMinute);
-    // EEPROM.write(EEPROM_MISSION_TIME_ADDR + 2, missionSecond);
-    // EEPROM.write(EEPROM_TIME_SET_FLAG_ADDR, timeSet ? 1 : 0);
+    // Teensy 4.1 EEPROM library automatically handles flash emulation
+    // No need to call EEPROM.begin() on Teensy
+    
+    EEPROM.write(EEPROM_MISSION_TIME_ADDR, missionHour);
+    EEPROM.write(EEPROM_MISSION_TIME_ADDR + 1, missionMinute);
+    EEPROM.write(EEPROM_MISSION_TIME_ADDR + 2, missionSecond);
+    EEPROM.write(EEPROM_TIME_SET_FLAG_ADDR, timeSet ? 1 : 0);
+    
+    // Note: EEPROM.commit() is not needed on Teensy - writes are immediate
+    // However, writes are cached and may be delayed, so we can force a commit if needed
 }
 
 void restoreMissionTime() {
     // Restore mission time from EEPROM (required: F2)
-    // TODO: Implement EEPROM read
-    // missionHour = EEPROM.read(EEPROM_MISSION_TIME_ADDR);
-    // missionMinute = EEPROM.read(EEPROM_MISSION_TIME_ADDR + 1);
-    // missionSecond = EEPROM.read(EEPROM_MISSION_TIME_ADDR + 2);
-    // timeSet = (EEPROM.read(EEPROM_TIME_SET_FLAG_ADDR) == 1);
+    // Teensy 4.1 EEPROM library automatically handles flash emulation
+    
+    missionHour = EEPROM.read(EEPROM_MISSION_TIME_ADDR);
+    missionMinute = EEPROM.read(EEPROM_MISSION_TIME_ADDR + 1);
+    missionSecond = EEPROM.read(EEPROM_MISSION_TIME_ADDR + 2);
+    timeSet = (EEPROM.read(EEPROM_TIME_SET_FLAG_ADDR) == 1);
+    
+    // Validate restored values
+    if (missionHour >= 24 || missionMinute >= 60 || missionSecond >= 60) {
+        // Invalid data, reset to defaults
+        missionHour = 0;
+        missionMinute = 0;
+        missionSecond = 0;
+        timeSet = false;
+    }
     
     // Recalculate offset
     if (timeSet) {

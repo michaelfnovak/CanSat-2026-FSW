@@ -15,7 +15,7 @@ uint32_t lastLoopTime = 0;
 uint32_t lastTelemetryTime = 0;
 
 // Team ID - MUST BE SET TO YOUR TEAM NUMBER
-const uint16_t TEAM_ID = 0;  // TODO: Set your team ID
+const uint16_t TEAM_ID = 1057;  // TODO: Set your team ID
 
 void setup() {
     // Initialize serial communication
@@ -38,6 +38,11 @@ void setup() {
     
     // Initialize flight state
     flightState = PRELAUNCH;
+    
+    // TODO: Set target GPS coordinates for paraglider navigation
+    // This should be set to the target landing location coordinates
+    setTargetLocation(38.0315f, -78.5100f); // UVA coordinates (example)
+    // The target location should be set before launch
     
     Serial.println("CanSat Flight Software Initialized");
     Serial.print("Team ID: ");

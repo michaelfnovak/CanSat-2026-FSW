@@ -5,6 +5,7 @@
 #include "Commands.h"
 #include "XBee.h"
 #include <Arduino.h>
+#include <EEPROM.h>  // Teensy 4.1 EEPROM library
 #include <stdio.h>
 #include <string.h>
 
@@ -15,21 +16,22 @@ static char commandEcho[32] = "";
 static uint16_t teamID = 0;
 
 // EEPROM address for packet count persistence (required: F1)
+// Reserve addresses 20-23 for packet count (4 bytes)
 const int EEPROM_PACKET_COUNT_ADDR = 20;
 
 void initTelemetry() {
-    // TODO: Initialize telemetry system
+    // Initialize telemetry system
     // Set up communication link (XBee, radio, etc.)
     telemetryEnabled = false;
     telemetryMode = MODE_FLIGHT;
     commandEcho[0] = '\0';
     
     // Restore packet count from EEPROM (required: F1)
-    // TODO: Read from EEPROM
-    // packetCount = EEPROM.read(EEPROM_PACKET_COUNT_ADDR) | 
-    //               (EEPROM.read(EEPROM_PACKET_COUNT_ADDR + 1) << 8) |
-    //               (EEPROM.read(EEPROM_PACKET_COUNT_ADDR + 2) << 16) |
-    //               (EEPROM.read(EEPROM_PACKET_COUNT_ADDR + 3) << 24);
+    // Teensy 4.1 EEPROM - read 4 bytes for uint32_t packet count
+    packetCount = (uint32_t)EEPROM.read(EEPROM_PACKET_COUNT_ADDR) | 
+                  ((uint32_t)EEPROM.read(EEPROM_PACKET_COUNT_ADDR + 1) << 8) |
+                  ((uint32_t)EEPROM.read(EEPROM_PACKET_COUNT_ADDR + 2) << 16) |
+                  ((uint32_t)EEPROM.read(EEPROM_PACKET_COUNT_ADDR + 3) << 24);
 }
 
 void setTelemetryEnabled(bool enabled) {
@@ -51,20 +53,25 @@ uint32_t getPacketCount() {
 void resetPacketCount() {
     // Reset packet count when installed on launch pad (required: F1)
     packetCount = 0;
-    // TODO: Save to EEPROM
-    // EEPROM.write(EEPROM_PACKET_COUNT_ADDR, packetCount & 0xFF);
-    // EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 1, (packetCount >> 8) & 0xFF);
-    // EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 2, (packetCount >> 16) & 0xFF);
-    // EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 3, (packetCount >> 24) & 0xFF);
+    
+    // Save to EEPROM (Teensy 4.1 - writes are immediate)
+    EEPROM.write(EEPROM_PACKET_COUNT_ADDR, packetCount & 0xFF);
+    EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 1, (packetCount >> 8) & 0xFF);
+    EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 2, (packetCount >> 16) & 0xFF);
+    EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 3, (packetCount >> 24) & 0xFF);
 }
 
 void incrementPacketCount() {
     packetCount++;
-    // TODO: Save to EEPROM periodically (required: F1)
-    // Save every 10 packets to reduce EEPROM wear
+    
+    // Save to EEPROM periodically (required: F1)
+    // Save every 10 packets to reduce EEPROM wear (Teensy 4.1 EEPROM is flash-based)
+    // Note: Flash has limited write cycles, so we minimize writes
     if (packetCount % 10 == 0) {
-        // EEPROM.write(EEPROM_PACKET_COUNT_ADDR, packetCount & 0xFF);
-        // ...
+        EEPROM.write(EEPROM_PACKET_COUNT_ADDR, packetCount & 0xFF);
+        EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 1, (packetCount >> 8) & 0xFF);
+        EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 2, (packetCount >> 16) & 0xFF);
+        EEPROM.write(EEPROM_PACKET_COUNT_ADDR + 3, (packetCount >> 24) & 0xFF);
     }
 }
 
