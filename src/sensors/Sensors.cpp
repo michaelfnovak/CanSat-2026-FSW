@@ -133,6 +133,7 @@ void zeroAltitude() {
 
 void setSimulationMode(bool enabled) {
     simulationModeEnabled = enabled;
+    simulationModeActive = enabled;  // Both required so getPressure() and updateSensors() use simulated values
 }
 
 bool isSimulationMode() {

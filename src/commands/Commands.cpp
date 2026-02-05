@@ -195,6 +195,7 @@ bool parseCommand(const char* cmdString) {
     } else if (strcmp(cmd, "SIM") == 0) {
         return processSIMCommand(params);
     } else if (strcmp(cmd, "SIMP") == 0) {
+        // Pressure in Pascals (e.g. 101325); strtoul stops at non-digit (\r, \n, etc.)
         uint32_t pressurePa = strtoul(params, nullptr, 10);
         return processSIMPCommand(pressurePa);
     } else if (strcmp(cmd, "CAL") == 0) {

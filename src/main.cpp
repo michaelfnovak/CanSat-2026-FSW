@@ -23,7 +23,7 @@ void setup() {
     delay(1000);
     
     // Set team ID for command processing
-    setTeamID(1057);
+    setTeamID(TEAM_ID);
     
     // Initialize all subsystems
     initTiming();
