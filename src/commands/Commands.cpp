@@ -11,9 +11,10 @@
 static uint16_t teamID = 0;
 
 void initCommands() {
-    // TODO: Initialize command processing system
-    // Set up command buffer, parser, etc.
-    teamID = 1057; 
+    // Command buffer and line assembly are in XBee (xbeeReceive returns one line per call).
+    // Parser state is stateless: parseCommand() handles each line.
+    // Team ID must be set by main via setTeamID() after init.
+    teamID = 0;
 }
 
 void setTeamID(uint16_t id) {

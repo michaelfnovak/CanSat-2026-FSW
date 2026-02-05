@@ -13,7 +13,7 @@ static bool telemetryEnabled = false;
 static uint32_t packetCount = 0;
 static TelemetryMode telemetryMode = MODE_FLIGHT;
 static char commandEcho[32] = "";
-static uint16_t teamID = 0;
+static uint32_t lastSuccessfulSendMs = 0;  // For link status / diagnostics
 
 // EEPROM address for packet count persistence (required: F1)
 // Reserve addresses 20-23 for packet count (4 bytes)
@@ -127,10 +127,10 @@ void sendTelemetry() {
         strcpy(gpsTimeStr, "00:00:00");
     }
     
-    // Format telemetry packet
+    // Format telemetry packet (use current team ID from Commands)
     snprintf(buffer, sizeof(buffer),
         "%04d,%s,%lu,%c,%s,%.1f,%.1f,%.1f,%.1f,%.2f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%s,%.1f,%.4f,%.4f,%d,%s\r\n",
-        teamID,                                    // TEAM_ID
+        getTeamID(),                                // TEAM_ID
         missionTimeStr,                           // MISSION_TIME
         packetCount,                              // PACKET_COUNT
         (telemetryMode == MODE_FLIGHT) ? 'F' : 'S', // MODE
@@ -156,10 +156,14 @@ void sendTelemetry() {
     
     // Send via XBee
     xbeeSend((const uint8_t*)buffer, strlen(buffer));
+    lastSuccessfulSendMs = millis();
     incrementPacketCount();
 }
 
 void updateTelemetry() {
-    // TODO: Check telemetry connection status
-    // Update connection state, handle errors, etc.
+    // Update telemetry connection state for diagnostics.
+    // For transparent XBee (no ACK), we consider the link active when xbeeReady() is true.
+    // lastSuccessfulSendMs is updated on each send; telemetryActive() uses
+    // telemetryEnabled && xbeeReady(). No further action required for link detection.
+    (void)lastSuccessfulSendMs;  // Used for future diagnostics if needed
 }
