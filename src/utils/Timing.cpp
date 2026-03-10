@@ -1,4 +1,5 @@
 #include "Timing.h"
+#include "Sensors.h"
 #include <Arduino.h>
 #include <EEPROM.h>  // Teensy 4.1 EEPROM library (emulated in flash)
 #include <math.h>
@@ -87,9 +88,34 @@ bool setMissionTime(const char* timeStr) {
 }
 
 bool setMissionTimeFromGPS() {
-    // TODO: Get time from GPS module (required: ST GPS command)
-    // This should read the current UTC time from GPS
-    // For now, placeholder implementation
+    // Get time from GPS module (required: ST GPS command with "GPS")
+    uint8_t h, m, s;
+    if (!getGPSTime(h, m, s)) {
+        return false;  // No valid GPS time yet
+    }
+
+    if (h < 24 && m < 60 && s < 60) {
+        missionHour = h;
+        missionMinute = m;
+        missionSecond = s;
+
+        // Calculate offset from current system time
+        uint32_t now = millis();
+        uint32_t currentSeconds = (now / 1000) % 86400;  // Seconds since midnight
+        uint32_t missionSeconds = h * 3600 + m * 60 + s;
+
+        // Handle wrap-around
+        if (missionSeconds > currentSeconds) {
+            missionTimeOffset = missionSeconds - currentSeconds;
+        } else {
+            missionTimeOffset = 86400 - (currentSeconds - missionSeconds);
+        }
+
+        timeSet = true;
+        saveMissionTime();
+        return true;
+    }
+
     return false;
 }
 

@@ -3,12 +3,14 @@
 #include "Sensors.h"
 #include <Arduino.h>
 #include <math.h>
+#include <Servo.h>
 
-// Servo control pins (TODO: Set these to your actual pin numbers)
-const int SERVO_PROBE_PIN = 2;        // Pin for probe release servo
-const int SERVO_PAYLOAD_PIN = 3;       // Pin for payload release servo
-const int SERVO_PARAGLIDER_1_PIN = 4;  // Pin for paraglider servo 1 (left/right control)
-const int SERVO_PARAGLIDER_2_PIN = 5;  // Pin for paraglider servo 2 (pitch/roll control)
+// Servo control pins (adjust to match your wiring)
+// These are standard PWM-capable pins on Teensy 4.1 and do not conflict with Serial1/2/3/4.
+const int SERVO_PROBE_PIN        = 2;  // Servo 3: probe release hatch
+const int SERVO_PAYLOAD_PIN      = 3;  // Servo 4: egg release
+const int SERVO_PARAGLIDER_1_PIN = 4;  // Servo 1: flight surface (left/right)
+const int SERVO_PARAGLIDER_2_PIN = 5;  // Servo 2: flight surface (pitch/roll)
 
 // Servo position limits (adjust based on your servo specifications)
 const float SERVO_MIN_ANGLE = 0.0f;    // Minimum servo angle in degrees
@@ -31,22 +33,28 @@ static uint32_t lastParagliderUpdate = 0;
 static bool probeReleased = false;
 static bool payloadReleased = false;
 
+// Servo objects
+static Servo servoProbe;        // Probe hatch (Servo 3)
+static Servo servoPayload;      // Egg release (Servo 4)
+static Servo servoParaglider1;  // Flight surface 1 (Servo 1)
+static Servo servoParaglider2;  // Flight surface 2 (Servo 2)
+
 void initServos() {
-    // TODO: Initialize servo control hardware
-    // For Teensy 4.1, you can use:
-    // - PWM library for direct PWM control
-    // - Servo library (if using standard RC servos)
-    // - Or your custom servo driver
-    
-    // Example using PWM (uncomment and configure for your setup):
-    // pinMode(SERVO_PROBE_PIN, OUTPUT);
-    // pinMode(SERVO_PAYLOAD_PIN, OUTPUT);
-    // pinMode(SERVO_PARAGLIDER_1_PIN, OUTPUT);
-    // pinMode(SERVO_PARAGLIDER_2_PIN, OUTPUT);
-    
-    // Initialize servos to center position
+    // Attach all servos to their pins (similar to servo_tester.ino using Servo library)
+    servoProbe.attach(SERVO_PROBE_PIN);
+    servoPayload.attach(SERVO_PAYLOAD_PIN);
+    servoParaglider1.attach(SERVO_PARAGLIDER_1_PIN);
+    servoParaglider2.attach(SERVO_PARAGLIDER_2_PIN);
+
+    // Initialize flight-surface servos to center position
     servo1Position = SERVO_CENTER;
     servo2Position = SERVO_CENTER;
+    servoParaglider1.write((int)servo1Position);
+    servoParaglider2.write((int)servo2Position);
+
+    // Initialize hatch servos to "closed" (0 degrees)
+    servoProbe.write(0);
+    servoPayload.write(0);
     
     probeReleased = false;
     payloadReleased = false;
@@ -57,20 +65,37 @@ void resetServos() {
     // Reset all servos to initial/default positions
     servo1Position = SERVO_CENTER;
     servo2Position = SERVO_CENTER;
-    
-    // TODO: Command servos to center position
-    // Example: analogWrite(SERVO_PARAGLIDER_1_PIN, angleToPWM(SERVO_CENTER));
-    
+    servoParaglider1.write((int)servo1Position);
+    servoParaglider2.write((int)servo2Position);
+
+    // Close hatches
+    servoProbe.write(0);
+    servoPayload.write(0);
+
     probeReleased = false;
     payloadReleased = false;
+}
+
+void setFlightSurface1Test(bool active) {
+    // Simple test: OFF = 0 degrees, ON = 90 degrees
+    float angle = active ? 90.0f : 0.0f;
+    servo1Position = angle;
+    servoParaglider1.write((int)angle);
+}
+
+void setFlightSurface2Test(bool active) {
+    // Simple test: OFF = 0 degrees, ON = 90 degrees
+    float angle = active ? 90.0f : 0.0f;
+    servo2Position = angle;
+    servoParaglider2.write((int)angle);
 }
 
 void releaseProbe() {
     // Activate servo to release probe (at 80% peak altitude)
     // This should be called when flight state transitions to PROBE_RELEASE
     if (!probeReleased) {
-        // TODO: Command servo to release probe
-        // Example: analogWrite(SERVO_PROBE_PIN, angleToPWM(180.0f)); // Full deflection
+        // Turn probe hatch servo by ~90 degrees to open
+        servoProbe.write(90);
         probeReleased = true;
     }
 }
@@ -79,8 +104,8 @@ void releasePayload() {
     // Activate servo to release payload (at 2m altitude)
     // This should be called when flight state transitions to PAYLOAD_RELEASE
     if (!payloadReleased) {
-        // TODO: Command servo to release payload (egg)
-        // Example: analogWrite(SERVO_PAYLOAD_PIN, angleToPWM(180.0f)); // Full deflection
+        // Turn egg-release servo by ~90 degrees to drop egg
+        servoPayload.write(90);
         payloadReleased = true;
     }
 }
@@ -233,9 +258,9 @@ void updateParagliderControl() {
     if (servo2Position < SERVO_MIN_ANGLE) servo2Position = SERVO_MIN_ANGLE;
     if (servo2Position > SERVO_MAX_ANGLE) servo2Position = SERVO_MAX_ANGLE;
     
-    // TODO: Send PWM commands to servos
-    // Example: analogWrite(SERVO_PARAGLIDER_1_PIN, angleToPWM(servo1Position));
-    // Example: analogWrite(SERVO_PARAGLIDER_2_PIN, angleToPWM(servo2Position));
+    // Send commands to actual servos (standard RC, 0–180 degrees)
+    servoParaglider1.write((int)servo1Position);
+    servoParaglider2.write((int)servo2Position);
 }
 
 void updateServos() {

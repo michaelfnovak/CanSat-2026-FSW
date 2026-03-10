@@ -121,8 +121,6 @@ bool processMECCommand(const char* device, const char* onOff) {
         return false;
     }
     
-    // TODO: Map device string to actual mechanism
-    // Examples: "PROBE", "PAYLOAD", "PARAGLIDER", etc.
     bool activate = (strcmp(onOff, "ON") == 0);
     
     if (strcmp(device, "PROBE") == 0) {
@@ -133,6 +131,12 @@ bool processMECCommand(const char* device, const char* onOff) {
         if (activate) {
             releasePayload();
         }
+    } else if (strcmp(device, "FS1") == 0) {
+        // Flight surface 1 test: ON -> 90 deg, OFF -> 0 deg
+        setFlightSurface1Test(activate);
+    } else if (strcmp(device, "FS2") == 0) {
+        // Flight surface 2 test: ON -> 90 deg, OFF -> 0 deg
+        setFlightSurface2Test(activate);
     }
     // Add more device mappings as needed
     

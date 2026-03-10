@@ -9,7 +9,7 @@ Areas where implementation is still needed (TODOs, placeholders, and incomplete 
 | Line | Area | What to do |
 |------|------|------------|
 | 18 | Team ID | Confirm `TEAM_ID = 1057` is your assigned team number. |
-| 42–44 | Target location | Set `setTargetLocation(lat, lon)` to your actual target landing coordinates (or load from config/command). |
+| 44  | Target location | Confirm `setTargetLocation(38.375833, -79.607778)` matches your desired landing coordinates (or load from config/command). |
 
 ---
 
@@ -17,13 +17,10 @@ Areas where implementation is still needed (TODOs, placeholders, and incomplete 
 
 | Area | What to do |
 |------|------------|
-| **initSensors()** ~L30 | Initialize barometer, temperature sensor, battery monitor, IMU (gyro/accel), GPS (I2C/SPI/Serial). |
-| **zeroAltitude()** ~L127 | Implement CAL behavior: store current pressure/altitude as offset so reported altitude is 0 m at launch pad (required: G1). |
-| **setSimulatedPressure()** ~L144 | Use barometric formula so altitude is computed from simulated pressure (for sim mode). |
-| **updateSensors()** ~L153 | Read all hardware: pressure → altitude, temperature, voltage, current, gyro R/P/Y, accel R/P/Y, GPS (time, lat, lon, alt, sats). Update `current*` and GPS globals. |
-| **Actual sensor reads** ~L159 | Replace placeholder with real reads for barometer, temp, battery, IMU, GPS. |
+| **zeroAltitude()** ~L177 | (Optional improvement) Consider also persisting simulation mode state if you want resets in sim mode to preserve that configuration. |
+| **calculateCurrentHeading()** ~L121 | Return current heading (e.g. from GPS course or IMU yaw); replace “return 0” placeholder. |
 
-**Required hardware (from rules):** Barometer (SN1), temp (SN2), battery V/I (SN3, SN10), GPS (SN4), IMU – accel + gyro (SN5).
+All required sensors (BMP390, INA219, BNO055, GPS) are initialized and used; simulated pressure and altitude are implemented.
 
 ---
 
@@ -31,11 +28,9 @@ Areas where implementation is still needed (TODOs, placeholders, and incomplete 
 
 | Area | What to do |
 |------|------------|
-| **initTiming()** ~L19 | Any RTC or time-source setup; `restoreMissionTime()` is already called. |
-| **setMissionTimeFromGPS()** ~L89 | Implement ST,GPS: read UTC time from GPS and call mission-time setter (required: F3). |
-| **updateTiming()** ~L146 | Optional: periodic GPS time sync, RTC sync, or health checks. |
+| **updateTiming()** ~L146 | Optional: periodic GPS time sync, RTC sync, or health checks (not required for rules). |
 
-Mission time save/restore to EEPROM is implemented for Teensy 4.1.
+Mission time save/restore to EEPROM is implemented, and ST,GPS now sets mission time from GPS.
 
 ---
 

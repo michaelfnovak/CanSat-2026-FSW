@@ -7,6 +7,7 @@
 #include "XBee.h"
 #include "servos.h"
 #include "Commands.h"
+#include "cameras.h"
 
 // Main loop timing
 const uint32_t MAIN_LOOP_PERIOD_MS = 10;  // 100 Hz main loop for responsiveness
@@ -31,6 +32,7 @@ void setup() {
     initXBee();
     initTelemetry();
     initServos();
+    initCameras();
     initCommands();
     
     // Restore mission time from persistent storage (required: F2)
@@ -39,10 +41,8 @@ void setup() {
     // Initialize flight state
     flightState = PRELAUNCH;
     
-    // TODO: Set target GPS coordinates for paraglider navigation
-    // This should be set to the target landing location coordinates
+    // Set target GPS coordinates for paraglider navigation (landing target)
     setTargetLocation(38.375833f, -79.607778f);
-    // The target location should be set before launch
     
     Serial.println("CanSat Flight Software Initialized");
     Serial.print("Team ID: ");
@@ -52,7 +52,7 @@ void setup() {
 void loop() {
     uint32_t now_ms = millis();
     
-    // High frequency main loop
+    // High frequency main loop (100 Hz) 
     if (now_ms - lastLoopTime >= MAIN_LOOP_PERIOD_MS) {
         lastLoopTime = now_ms;
         

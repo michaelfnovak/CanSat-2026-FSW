@@ -1,6 +1,7 @@
 #include "Sensors.h"
 #include <Arduino.h>
 #include <Wire.h>
+#include <EEPROM.h>
 #include <math.h>
 
 // Adafruit sensor libraries (BMP390, INA219, BNO055)
@@ -9,6 +10,9 @@
 #include <Adafruit_BNO055.h>
 #include <Adafruit_Sensor.h>
 #include <TinyGPSPlus.h>
+
+// Unit conversion
+static constexpr float DEG_PER_RAD = 57.2958f;
 
 // Sensor state variables
 static float currentAltitude = 0.0f;
@@ -34,8 +38,13 @@ static bool simulationModeEnabled = false;
 static bool simulationModeActive = false;
 static float simulatedPressure = 101325.0f;  // Pascals
 
+// EEPROM addresses for persistent configuration state
+// Reserve addresses 30-33 for altitude offset (float) and 34 for calibration flag.
+const int EEPROM_ALT_OFFSET_ADDR = 30;
+const int EEPROM_ALT_CAL_FLAG_ADDR = 34;
+
 // Hardware sensor objects
-// BMP390 barometric sensor (I2C). Uses default I2C address (0x77 or 0x76 depending on wiring).
+// BMP390 barometric sensor (I2C). Uses I2C address 0x77 (see BNOO55_and_BMP390_test.ino).
 static Adafruit_BMP3XX bmp;
 static bool bmpInitialized = false;
 
@@ -45,9 +54,8 @@ static Adafruit_INA219 ina219;
 // BNO055 IMU (I2C). Common address is 0x28; change to 0x29 if your board is configured that way.
 static Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 
-// GPS module (UART). Adjust port/baud to match your wiring and Arduino test code.
-// Example: GPS wired to Teensy 4.1 Serial2 (RX2/TX2) at 9600 baud.
-static HardwareSerial& GPS_SERIAL = Serial2;
+// GPS module (UART). GPS uses Serial1 at 4800 baud (see gps_tester.ino).
+static HardwareSerial& GPS_SERIAL = Serial1;
 static TinyGPSPlus gpsParser;
 
 void initSensors() {
@@ -55,14 +63,14 @@ void initSensors() {
     Wire.begin();
 
     // Initialize BMP390 barometric/temperature sensor
-    // Uses I2C, default address. Returns false if not found.
-    if (bmp.begin_I2C()) {
+    // Uses I2C address 0x77. Returns false if not found.
+    if (bmp.begin_I2C(0x77)) {
         bmpInitialized = true;
-        // Configure oversampling / filter similar to Adafruit examples
-        bmp.setTemperatureOversampling(BMP3XX_OVERSAMPLING_8);
-        bmp.setPressureOversampling(BMP3XX_OVERSAMPLING_4);
-        bmp.setIIRFilterCoeff(BMP3XX_IIR_FILTER_3);
-        bmp.setOutputDataRate(BMP3XX_ODR_50_HZ);
+        // Configure oversampling / filter exactly as in BNOO55_and_BMP390_test.ino
+        bmp.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+        bmp.setPressureOversampling(BMP3_OVERSAMPLING_16X);
+        bmp.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
+        bmp.setOutputDataRate(BMP3_ODR_50_HZ);
     } else {
         bmpInitialized = false;
     }
@@ -81,10 +89,16 @@ void initSensors() {
     }
 
     // Initialize GPS UART (TinyGPSPlus parser in updateSensors)
-    // Adjust baud rate to match your GPS module and Arduino test code.
-    GPS_SERIAL.begin(9600);
+    // BrainFPV GPS at 4800 baud to reduce UART frame errors (see gps_tester.ino).
+    GPS_SERIAL.begin(4800);
     
-    altitudeOffset = 0.0f;
+    // Restore altitude calibration (zero-altitude offset) from EEPROM (F8)
+    if (EEPROM.read(EEPROM_ALT_CAL_FLAG_ADDR) == 1) {
+        EEPROM.get(EEPROM_ALT_OFFSET_ADDR, altitudeOffset);
+    } else {
+        altitudeOffset = 0.0f;
+    }
+
     previousAltitude = 0.0f;
     lastUpdateTime = millis();
 }
@@ -173,11 +187,15 @@ float getVerticalVelocity() {
 }
 
 void zeroAltitude() {
-    // TODO: Calibrate altitude to zero at launch pad (required: G1, CAL command)
-    // Store current altitude reading as offset
+    // Calibrate altitude to zero at launch pad (required: G1, CAL command)
+    // Store current altitude reading as offset and persist it (F8).
     altitudeOffset = currentAltitude;
     currentAltitude = 0.0f;
     previousAltitude = 0.0f;
+
+    // Save altitudeOffset and a calibration flag to EEPROM so it survives resets.
+    EEPROM.put(EEPROM_ALT_OFFSET_ADDR, altitudeOffset);
+    EEPROM.write(EEPROM_ALT_CAL_FLAG_ADDR, 1);
 }
 
 void setSimulationMode(bool enabled) {
@@ -225,19 +243,19 @@ void updateSensors() {
         currentCurrent = current_mA / 1000.0f;  // Convert mA to A
 
         // --- BNO055: gyro and accelerometer ---
-        sensors_event_t imuEvent;
+        sensors_event_t accelEvent, gyroEvent;
 
-        // Gyroscope (angular velocity). Map x/y/z to roll/pitch/yaw.
-        bno.getEvent(&imuEvent, Adafruit_BNO055::VECTOR_GYROSCOPE);
-        currentGyroR = imuEvent.gyro.x;
-        currentGyroP = imuEvent.gyro.y;
-        currentGyroY = imuEvent.gyro.z;
+        // Linear acceleration (m/s^2), gravity removed. Matches BNOO55_and_BMP390_test.ino.
+        bno.getEvent(&accelEvent, Adafruit_BNO055::VECTOR_LINEARACCEL);
+        currentAccelR = accelEvent.acceleration.x;
+        currentAccelP = accelEvent.acceleration.y;
+        currentAccelY = accelEvent.acceleration.z;
 
-        // Accelerometer (linear acceleration). Map x/y/z to roll/pitch/yaw axes.
-        bno.getEvent(&imuEvent, Adafruit_BNO055::VECTOR_ACCELEROMETER);
-        currentAccelR = imuEvent.acceleration.x;
-        currentAccelP = imuEvent.acceleration.y;
-        currentAccelY = imuEvent.acceleration.z;
+        // Gyroscope (angular velocity). Library reports rad/s -> convert to deg/s for telemetry.
+        bno.getEvent(&gyroEvent, Adafruit_BNO055::VECTOR_GYROSCOPE);
+        currentGyroR = gyroEvent.gyro.x * DEG_PER_RAD;
+        currentGyroP = gyroEvent.gyro.y * DEG_PER_RAD;
+        currentGyroY = gyroEvent.gyro.z * DEG_PER_RAD;
 
         // --- GPS: parse NMEA sentences from GPS_SERIAL using TinyGPSPlus ---
         while (GPS_SERIAL.available() > 0) {

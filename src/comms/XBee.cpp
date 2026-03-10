@@ -10,8 +10,8 @@
 #include <string.h>
 #include <Arduino.h>
 
-// Serial port for XBee (Teensy 4.1: Serial1 = RX pin 0, TX pin 1)
-#define XBEE_SERIAL Serial1
+// Serial port for XBee (Teensy 4.1): use Serial2 for XBee, Serial1 reserved for GPS
+#define XBEE_SERIAL Serial2
 
 // XBee-Pro XSC 900 MHz default baud is 9600. Change if your radios are configured differently.
 #define XBEE_BAUD 9600

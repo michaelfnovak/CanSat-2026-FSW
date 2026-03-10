@@ -13,6 +13,11 @@ void releaseProbe();
 // Release payload (typically at 2m altitude)
 void releasePayload();
 
+// Direct test control of flight-surface servos (used by MEC commands)
+// When active is true, deflect to ~90 degrees; when false, return to 0 degrees.
+void setFlightSurface1Test(bool active);
+void setFlightSurface2Test(bool active);
+
 // Paraglider control (during PROBE_RELEASE phase)
 // Controls two servos for steering the paraglider toward target location
 void updateParagliderControl();
