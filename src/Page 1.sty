@@ -1,0 +1,840 @@
+Page 1
+<img>American Astronautical Society Logo with CANSAT COMPETITION text</img>
+
+Cansat Competition Guide 2026
+Paraglider Instrument Delivery
+Rev 1.0g Dec 5, 2025
+
+<page_number>1</page_number>
+
+Page 2
+Table of Contents
+Introduction 1.1 Competition Description 1.2 Team Selection
+Mission Overview
+Requirements 3.1 Telemetry, Command, and Simulation Requirements 3.1.1 Telemetry 3.1.1.1 Telemetry Formats 3.1.1.2 Telemetry Data Files 3.1.2 On-board Telemetry Storage 3.1.2 Commands 3.1.3 Simulation Mode 3.2 Banned Materials and components 3.3 Environmental Tests
+Team Composition 4.1 Team Size 4.2 Faculty Advisor
+Deliverable Items 5.1 Preliminary Design Review 5.2 Critical Design Review 5.3 Post Flight Review 5.4 Deliverable Submissions and Scheduling 5.5 Slide Format Guidelines 5.6 Disqualification Guidelines
+Launch Weekend 6.1 Schedule 6.2 Flight Readiness Review 6.2.1 FRR Sequence of Events 6.3 Team Member Launch Operations Crew Assignments 6.4 Mission Operations Manual 6.5 Launch Schedule 6.6 Competition Operations and Sequence of Events 6.7 Second Flight Rules 6.8 Weather Delays <page_number>2</page_number>
+Page 3
+Appendix A Field Safety Rules....................................................33 Appendix B Presentation Recommendations........................................34 Appendix C Payload Deployment Description......................................35 Appendix D Acronyms..................................................................36 Appendix E Definitions...................................................................37 Appendix F – Payload Section..........................................................39 Appendix G - Competition Calendar..................................................43
+
+<page_number>3</page_number>
+
+Page 4
+Revisions
+Date	Changes
+6/2/2025	Initial guide
+8/22/2025	Added SN10 requirement.
+8/29/2025	Removed auto-gyro rate from telemetry.
+8/30/2025	Fixed requirement G7, deleted magnetometer from 3.1.1.1, fixed dates.
+9/24/2025	Added margin to C12. Added current to the telemetry list in section 3.1.1.1.
+9/29/2025	Deleted magnetometer elements from telemetry in section 3.1.1.1.
+11/9/2025	Fixed S3 and S12.
+11/20/2025	Fixed container diameter to be consistent through the document. 140 mm.
+12/5/2025	Corrected dimension in appendix F.
+<page_number>4</page_number>
+
+Page 5
+1. Introduction
+The Cansat competition is a design-build-fly competition that provides teams with an opportunity to experience the design life-cycle of an aerospace system. The Cansat competition is designed to reflect a typical aerospace program on a small scale and includes all aspects of an aerospace program from the preliminary design review to post flight review. The mission and its requirements are designed to reflect various aspects of real world missions including telemetry, communications, and autonomous operations. Each team is scored throughout the competition on real-world deliverables such as schedules, design review presentations, and demonstration flights.
+
+1.1 Competition Description
+To control the size of the competition, only three teams per school are allowed to apply to the competition. It is recommended that schools hold internal design competitions to determine the three teams to apply. If more than three teams from one school apply, the first three applications received will be accepted.
+
+The competition is in five phases.
+
+Phase one is the application phase. Teams must submit an application and a $200 competition fee that is non-refundable. The fee is used to offset the cost of rocket motors and other materials. Applications must be submitted by November 3, 2025. Payments will be requested in early November and must be paid by the given due date that will be announced.
+
+Phase two is the preliminary design. Teams are to develop designs, prototype, test concepts and generate a preliminary design review (PDR) slide package using the provided template. Teams will submit PDR slides by the designated due date in section 5.4. Slides will only be accepted in PDF format. Teams that do not meet the due date or do not submit in the proper PDF format will be dropped from the competition. A schedule will be made available on when to present a subset of the slides. Teams will have a half hour to discuss a subset of the PDR slides via telecon.
+
+After the PDR reviews have been completed, the score sheets will be reviewed for completeness and potential errors. The score sheets will be made available to teams. Teams will have a short time period to review and identify potential errors. Teams must submit errors within the review period. The identified errors will be reviewed and if agreed, the score sheet will be updated. Afterwards, a total of 40 teams will be invited to the competition.
+
+Phase three is the critical design. Teams will finalize their design and start ordering components, manufacturing parts, test subsystems and start developing the flight unit. Teams will generate a critical design review (CDR) slide package using the provided template. Teams will submit CDR slides by the designated due date. Slides will only be accepted in PDF format. Teams that do not meet the due date or do not submit in the proper PDF format will be
+
+<page_number>5</page_number>
+
+Page 6
+dropped from the competition. A schedule will be made available on when to present a subset of the slides. Teams will have a half hour to discuss a subset of the CDR slides via telecon.
+
+Phase four is the launch weekend. Friday, teams will be scheduled to present their completed Cansat for flight readiness review which must be completed in 30 minutes. The Cansat must be ready to launch at this time. It must be completely assembled and flight ready. Each team will be scored during the flight readiness review. Teams can only present once at the flight readiness review at their designated time. Teams late for the review will lose points. Cansats must pass the drop test, fit check, and battery verification in order to fly. Multiple attempts at the drop test are allowed until the flight readiness reviews are completed.
+
+Saturday is the launch day where teams will perform final preparations and turn in their Cansats by 12:00 hours local time. Launch will start at 13:00 hours local time and continue until all launches are completed. There will be no second flights unless the fault is of the launch provider and there are spare rockets and rocket motors.
+
+Phase five is the Post Flight Review (PFR). Post Flight Review is a 15 minute presentation of the flight results and 5 minutes for questions. Awards will be presented at the end of all the post Flight Reviews.
+
+For teams to receive certificates of accomplishment and be considered for awards, they must complete all phases of the competition.
+
+Late submissions will not be accepted for any phase and the team will be dropped from the competition. Internet issues, file issues, email issues, and any other issues will not be considered. Submit the documents early to be safe.
+
+All scoring and judging results are final. Scoring is set up to be quantitative with little qualitative scoring to minimize any biases.
+
+The competition is operated by a dedicated group of volunteers who spend their own time supporting various phases of the competition. Some volunteers spend their own funds to attend and support the competition while others are graciously supported by their employers. The competition is designed to provide teams a great educational experience and to minimize the time of the volunteers. Strict due dates, file templates, and file name formats are required. Please follow all due dates and all submission requirements.
+
+1.2 Team Selection
+Since the competition is sponsored by US organizations, the competition is required to include at least 20 US teams. During the application phase of the competition, up to 20 teams per country can participate. If more than 20 apply per country, a random selection will be made for the 20 teams per country.
+
+<page_number>6</page_number>
+
+Page 7
+From the top 40 selection, 20 teams are required to be from the US. The remaining 20 teams can be from other countries. Teams from each country will be ranked only among their country. Then the top scoring teams from each country will be selected in a round robin method. The top team from each country will be selected in the first round, then the next top team from each country will be selected in the second round and the selection is repeated until 40 teams are selected. This will create the greatest diversity in teams and allow more countries to participate.
+
+2. Mission Overview
+
+Design a Cansat that consists of a payload and a container that mounts on top of the rocket. The payload rests inside the container at launch and includes the nose cone as part of the payload.
+
+The container with the payload shall deploy from the rocket when the rocket reaches peak altitude and the rocket motor ejection forces a separation. The container with the payload shall descend at a rate of no more than 15 meters/second using a parachute that automatically deploys at separation.
+
+At 80% peak altitude, the payload shall separate from the container and descend using a para-glider descent control system until landing. The descent rate shall be an average of 5 meters/second. The payload shall steer toward a specified position to deposit an instrument. At 2 meters above the ground, the instrument shall be released and land intact.
+
+A video camera shall show the separation of the payload from the container and the para-glider descent control system functioning. A second video camera shall be pointing downwards and show the ground during descent and the instrument being released. The instrument will be simulated using a large hens egg with a mass ranging from 54 grams to 64 grams.
+
+The Cansat shall collect sensor data during ascent and descent and transmit the data to a ground station at a 1 Hz rate. The sensor data shall include interior temperature, battery voltage, battery current, altitude, tilt angle, rotation rate, and GPS position.
+
+The Cansat container shall meet the mechanical requirements in section F.
+
+<page_number>7</page_number>
+
+Page 8
+3. Requirements
+Operational Requirements
+Requirement Number	Requirement
+C1	The Cansat payload shall function as a nose cone during the rocket ascent portion of the flight.
+C2	The Cansat container shall be mounted on top of the rocket with the shoulder section inserted into the airframe.
+C3	The Cansat payload and container shall be deployed from the rocket when the rocket motor ejection charge fires.
+C4	After deployment, the Cansat payload and container shall descend at 15 meters/second using a parachute that automatically deploys. Error is +/- 3 m/s.
+C5	At 80% flight peak altitude, the payload shall be released from the container.
+C6	At 80% peak altitude, the payload shall deploy a para-glider descent control system.
+C7	The payload shall descend at 5 meters/second averaged over the entire descent within +/- 3 meters/sec with the para-glider descent control system.
+C8	The payload shall steer toward a target location.
+C9	The sensor telemetry shall be transmitted at a 1 Hz rate.
+C10	The payload shall record video of the release of the payload from the container and the deployment of the para-glider descent control system.
+C11	A second video camera shall point at the ground.
+C12	The payload shall release a protected hens egg when the payload is 2 meters +/- 0.5 m above the ground without breaking the egg.
+C13	The Cansat payload shall include an audible beacon that is turned on separately and is independent of the Cansat battery and electronics.
+C14	Cost of the Cansat shall be under $1000. Ground support and analysis
+<page_number>8</page_number>
+
+Page 9
+tools are not included in the cost of the Cansat. Equipment from previous years shall be included in this cost, based on current market value.
+
+Structural Requirements
+Requirement Number	Requirement
+S1	The Cansat and container mass shall be 1000 grams +/- 10 grams.
+S2	The nose cone shall be symmetrical along the thrust axis.
+S3	Nose cone radius shall be exactly 70 mm
+S4	Nose cone shoulder length shall be a minimum of 50 mm
+S5	The nose cone shall be made as a single piece. Segments are not allowed.
+S6	The nose cone shall not have any openings allowing air flow to enter.
+S7	The nose cone height shall be a minimum of 76 mm.
+S8	Cansat structure must survive 15 Gs vibration
+S9	Cansat shall survive 30 G shock.
+S10	The container shoulder length shall be 90 to 120 mm.
+S11	The container shoulder diameter shall be 136 mm.
+S12	Above the shoulder, the container diameter shall be 140 mm
+S13	The container wall thickness shall be at least 2 mm when 3D printed and must not flex or be deformed when under stress.
+S14	The container length above the shoulder shall be 200 mm +/- 5%.
+S15	The Cansat shall perform the function of the nose cone during rocket ascent.
+S16	The Cansat container can be used to restrain any deployable parts of the
+<page_number>9</page_number>
+
+Page 10
+Cansat payload but shall allow the Cansat to slide out of the payload section freely.
+S17	All electronics and mechanical components shall be hard mounted using proper mounts such as standoffs, screws, or high performance adhesives.
+S18	The Cansat container shall meet all dimensions in section F.
+S19	The Cansat container materials shall meet all requirements in section F.
+S20	If the nose cone is to separate from the payload after payload deployment, the nose cone shall descend at no more than 5 meters/sec.
+S21	If the nose cone is to separate from the payload after payload deployment, the nose cone shall be secured to the payload until payload deployment with a pull force to survive at least 15 Gs acceleration.
+Mechanism Requirements
+Requirement Number	Requirement
+M1	No pyrotechnical or chemical actuators are allowed.
+M2	Mechanisms that use heat (e.g., nichrome wire) shall not be exposed to the outside environment to reduce potential risk of setting the vegetation on fire.
+M3	All mechanisms shall be capable of maintaining their configuration or states under all forces.
+M4	Spring contacts shall not be used for making electrical connections to batteries. Shock forces can cause momentary disconnects.
+Electrical Requirements
+Requirement Number	Requirement
+E1	Lithium polymer batteries are not allowed.
+E2	Battery source may be alkaline, Ni-Cad, Ni-MH or Lithium. Lithium polymer batteries are not allowed. Lithium cells must be manufactured with a metal package similar to 18650 cells. Coin cells are allowed.
+<page_number>10</page_number>
+
+Page 11
+E3	An easily accessible power switch through the container is required.
+E4	The container shall have small access holes for power switches of no more than 10 mm.
+E5	Power indicator is required.
+E6	The Cansat shall operate for a minimum of two hours when integrated into the rocket.
+E7	The audio beacon shall operate on a separate battery.
+E8	The audio beacon shall have an easily accessible power switch through the container.
+Communications Requirements
+
+Requirement Number	Requirement
+X1	XBEE radios shall be used for telemetry. 2.4 GHz Series radios are allowed. 900 MHz XBEE radios are also allowed.
+X2	XBEE radios shall have their NETID/PANID set to their team number.
+X3	XBEE radios shall not use broadcast mode.
+X4	The Cansat shall transmit telemetry once per second.
+X5	The Cansat telemetry shall include altitude, air pressure, temperature, battery voltage, command echo, and GPS coordinates that include latitude, longitude, altitude and number of satellites tracked.
+Sensor Requirements
+
+Requirement Number	Requirement
+SN1	Cansat payload shall measure its altitude using air pressure.
+SN2	Cansat payload shall measure its internal temperature.
+<page_number>11</page_number>
+
+Page 12
+SN3	Cansat payload shall measure its battery voltage.
+SN4	Cansat payload shall track its position using GPS.
+SN5	Cansat payload shall measure its acceleration and rotation rates.
+SN6	Cansat payload shall video record the deployment of the para-glider at 80% peak altitude.
+SN7	Cansat payload shall video record the ground during descent.
+SN8	The ground pointing camera shall capture video of the instrument (egg) being released and reaching the ground.
+SN9	The video cameras shall record video in color and with a minimum resolution of 640x480.
+SN10	Cansat payload shall measure its battery current.
+Ground Station Requirements
+Requirement Number	Requirement
+G1	The ground station shall command the Cansat to calibrate the altitude to zero when the Cansat is on the launch pad prior to launch.
+G2	The ground station shall generate csv files of all sensor data as specified in the Telemetry Requirements section.
+G3	Telemetry shall include mission time with 1 second resolution.
+G4	Each team shall develop their own ground station.
+G5	All telemetry shall be displayed in real time in text format during ascent and descent on the ground station.
+G6	All telemetry shall be displayed in the International System of Units (SI) and the units shall be indicated on the displays.
+G7	Teams shall plot altitude, battery voltage, battery current, accelerometer value and rotation rates in real time.
+G8	Teams shall display mission time, temperature, GPS position, received packet count, lost packet count, and flight software state in real time.
+<page_number>12</page_number>
+
+Page 13
+G9	The ground station shall include one laptop computer with a minimum of two hours of battery operation, XBEE radio and an antenna.
+G10	The ground station must be portable so the team can be positioned at the ground station operation site along the flight line. AC power will not be available at the ground station operation site.
+G11	The ground station software shall be able to command the payload to operate in simulation mode by sending two commands, SIMULATION ENABLE and SIMULATION ACTIVATE.
+G12	When in simulation mode, the ground station shall transmit pressure data from a csv file provided by the competition at a 1 Hz interval to the Cansat.
+G13	The ground station shall use a table top or handheld antenna.
+G14	Because the ground station must be viewed in bright sunlight, the displays shall be designed with that in mind, including using larger fonts (14 point minimum), bold plot traces and axes, and a dark text on light background theme.
+G15	All data shall be shown simultaneously in the ground station GUI. Tabs are not allowed.
+G16	The ground system shall count the number of received packets. Note that this number is not equivalent to the transmitted packet counter, but it is the count of packets successfully received at the ground station for the duration of the flight.
+G17	The ground station shall be able to activate all mechanisms on command.
+Flight Software Requirements
+
+Requirement	Requirement
+<page_number>13</page_number>
+
+Page 14
+Number	
+F1	The flight software shall maintain a count of packets transmitted which shall increment with each packet transmission throughout the mission. The value shall be maintained through processor resets.
+F2	The Cansat shall maintain mission time throughout the entire mission even in the event of a processor resets or momentary power loss.
+F3	The Cansat shall have its time set by ground command to within one second UTC time prior to launch.
+F4	The flight software shall support simulated flight mode where the ground station sends air pressure values at a one second interval using a provided flight profile file.
+F5	In simulation mode, the flight software shall use the radio uplink pressure values in place of the pressure sensor for determining the payload altitude.
+F6	The flight software shall only enter simulation mode after it receives the SIMULATION ENABLE and SIMULATION ACTIVATE commands.
+F7	The flight shall include commands to activate all mechanisms. These commands shall be documented in the mission manual.
+F8	Configuration states such as zero altitude calibration software state shall be maintained in the event of a processor reset during launch and mission.
+3.1 Telemetry, Command, and Simulation Requirements
+
+3.1.1 Telemetry
+
+Upon power up and receipt of the CXON command, the Cansat shall collect the required telemetry at a one (1) Hz sample rate and transmit the telemetry data to the ground station.
+
+The ASCII format of the telemetry packets are described below. Each telemetry field is delimited by a comma, and each telemetry packet is terminated by a single carriage return character. No comma (',') characters should be part of the data fields -- commas are delimiters only.
+
+3.1.1.1 Telemetry Formats
+
+The Cansat telemetry packet format to be transmitted at one (1) Hz is as follows:
+
+TEAM_ID, MISSION_TIME, PACKET_COUNT, MODE, STATE, ALTITUDE, TEMPERATURE, PRESSURE, VOLTAGE, CURRENT, GYRO_R, GYRO_P, GYRO_Y, ACCEL_R, ACCEL_P, ACCEL_Y, GPS_TIME, GPS_ALTITUDE,
+
+<page_number>14</page_number>
+
+Page 15
+GPS_LATITUDE, GPS_LONGITUDE, GPS_SATS, CMD_ECHO [,OPTIONAL_DATA]
+
+The telemetry data fields are to be formatted as follows:
+
+TEAM_ID is the assigned four digit team identification number. E.g., imaginary team ‘1000’.
+MISSION_TIME is UTC time in format hh:mm:ss, where hh is hours, mm is minutes, and ss is seconds. E.g., ‘13:14:02’ indicates 1:14:02 PM.
+PACKET_COUNT is the total count of transmitted packets since turn on, which is to be reset to zero by command when the Cansat is installed in the rocket on the launch pad at the beginning of the mission and maintained through processor reset.
+MODE is ‘F’ for flight mode and ‘S’ for simulation mode.
+STATE is the operating state of the software, which shall be ‘LAUNCH_PAD’, ‘ASCENT’, ‘APOGEE’, ‘DESCENT’, ‘PROBE_RELEASE’, ‘PAYLOAD_RELEASE’, ‘LANDED’. States should be telemetered as ASCII text which will be reviewed by the judges after the launch in the .csv files.
+ALTITUDE is the altitude in meters relative to ground level at the launch site. The resolution must be 0.1 meters.
+TEMPERATURE is the temperature in degrees Celsius with a resolution of 0.1 degrees.
+PRESSURE is the air pressure of the sensor used. Value must be in kPa with a resolution of 0.1 kPa.
+VOLTAGE is the voltage of the Cansat power bus with a resolution of 0.1 volts.
+CURRENT is the current from the battery with a resolution of .01 amperes.
+GYRO_R, GYRO_P, GYRO_Y are the gyro readings in degrees per second for the roll, pitch, and yaw axes.
+ACCEL_R, ACCEL_P, ACCEL_Y are the accelerometer readings in degrees per second squared for the roll, pitch and yaw axes.
+GPS_TIME is the time from the GPS receiver. The time must be reported in UTC and have a resolution of one second.
+GPS_ALTITUDE is the altitude from the GPS receiver in meters above mean sea level with a resolution of 0.1 meters.
+GPS_LATITUDE is the latitude from the GPS receiver in decimal degrees with a resolution of 0.0001 degrees North.
+GPS_LONGITUDE is the longitude from the GPS receiver in decimal degrees with a
+<page_number>15</page_number>
+
+Page 16
+resolution of 0.0001 degrees West.
+
+GPS_SATS is the number of GPS satellites being tracked by the GPS receiver. This must be an integer.
+
+CMD_ECHO is the text of the last command received and processed by the Cansat. For example, CXON or SP101325. See the command section for details of command formats. Do not include commas characters.
+
+[,,OPTIONAL_DATA] are zero or more additional fields the team considers important following two commas, which indicates a blank field. This data must follow the same format rules (including use of comma characters ',') to facilitate review of the CSV files by the judges after the mission.
+
+Axes definitions for rate, acceleration, and magnetic sensor data:
+
+The following satellite industry standard definition of the Roll, Pitch, and Yaw axes shall be used for telemetry data and must be considered when mounting and aligning inertial measurement units.
+
+When perfectly aligned (zero pointing error on all axes), the positive Yaw axis (+Z) points towards the earth (nadir direction), the positive Pitch axis (+Y) points south, and the positive Roll axis (+X) points east.
+
+The camera pointing requirement is due north, which is the negative Pitch -Y direction.
+
+3.1.1.2 Telemetry Data Files
+The received telemetry for the entire mission shall be saved on the ground station computer as comma separated value (.csv) files that will be examined by the competition judges in Excel. The CSV format should be the same as used by export from Excel.
+
+Teams shall provide the CSV file to the judges immediately after the launch operations via USB drive.
+
+The CSV files shall include a header specifying the name of each field/column of data in the file.
+
+The telemetry data files shall be named as follows:
+
+Flight_<TEAM_ID>.csv
+where the team_id is the four digit team id number. For example: Flight_1000.csv is the required file name for imaginary team 1000.
+
+The ground software shall produce the files, with the correct name, easily from the ground system user interface, and save them to the provided USB memory stick, which is to be given to judges before leaving the launch area.
+
+3.1.2.3 On-board Telemetry Storage
+It is suggested that teams make use of onboard data storage as backup in case of radio failure. Only the transmitted telemetry is examined and scored on flight day; however, the
+
+<page_number>16</page_number>
+
+Page 17
+backup data can be used when preparing the Post Flight Review presentation.
+
+3.1.2 Commands
+The payload shall receive and process the following commands from the Ground Station:
+
+CX - Payload Telemetry On/Off Command
+CMD,<TEAM_ID>,CX,<ON_OFF>
+
+Where:
+
+CMD and CX are static text.
+is the assigned team identification.
+<ON_OFF> is the string ‘ON’ to activate the payload telemetry transmissions and ‘OFF’ to turn off the transmissions.
+Example: The command CMD,1000,CX,ON activates payload telemetry transmission, assuming the team id is 1000.
+
+ST - Set Time
+CMD,<TEAM_ID>,ST,<UTC_TIME>|GPS
+
+Where: 4. CMD and ST are static text. 5. is the assigned team identification. 6. <UTC_TIME>|GPS is UTC time in the format hh:mm:ss or ‘GPS’ which sets the flight software time to the current time read from the GPS module.
+
+Example: The command CMD,1000,ST,13:35:59 sets the mission time to the value given and the command CMD,1000,ST,GPS sets the time to the current GPS time.
+
+Note: It is recommended that the time be set directly from the Ground System time, in UTC, or from the GPS rather than being typed into the command manually.
+
+SIM - Simulation Mode Control Command
+CMD,<TEAM_ID>,SIM,
+
+Where:
+
+CMD and SIM are static text.
+<TEAM_ID> is the assigned team identification.
+is the string ‘ENABLE’ to enable the simulation mode, ‘ACTIVATE’ to activate the simulation mode, or ‘DISABLE’ which both disables and deactivates the simulation mode.
+Example: Both the CMD,1000,SIM,ENABLE and CMD,1000,SIM,ACTIVATE commands are required to begin simulation mode.
+
+Note: It is advised that care be taken to not allow mixing of simulated and actual barometric altitude data. This caused at least one failure in the recent launches.
+
+SIMP - Simulated Pressure Data (to be used in Simulation Mode only)
+<page_number>17</page_number>
+
+Page 18
+CMD,,SIMP,
+
+Where:
+
+CMD and SIMP are static text.
+is the assigned team identification.
+is the simulated atmospheric pressure data in units of pascals with a resolution of one Pascal.
+Example: CMD,1000,SIMP,101325 provides a simulated pressure reading to the payload (101325 Pascals = approximately sea level). Note: this command is to be used only in simulation mode.
+
+Note: Pressure values in the SIMP profile are not calibrated to be relative to the launch site altitude, but are absolute altitudes above sea level.
+
+CAL - Calibrate Altitude to Zero CMD,,CAL
+
+Where:
+
+CMD and CAL are static text.
+is the assigned team identification.
+<TEAM_ID> is the assigned team identification.The CAL command is to be sent when the Cansat is installed on the launch pad and causes the flight software to calibrate the telemetered altitude to 0 meters.
+
+Note: This command also can be used by the flight software to reset and enable processor reset recovery algorithms. (Note: more than three teams failed to complete the mission last year because of processor resets during the launch; so, be prepared.)
+
+MEC - Mechanism actuation command
+
+CMD,,MEC,,<ON_OFF>
+
+Where:
+
+CMD and MEC are static text.
+is the assigned team identification.
+is defined by the team to identify the specific mechanism.
+<ON_OFF> is the string ‘ON’ to activate the mechanism and ‘OFF’ to turn off the mechanism.
+The MEC command is to be sent to activate a specific mechanism. DEVICE is defined by the team to identify the specific mechanism.
+
+OPTIONAL - Optional Commands The team may implement additional commands that are useful for testing or controlling the Cansat. For example: it is a good idea to implement commands to activate mechanisms..
+
+<page_number>18</page_number>
+
+Page 19
+Note: commanding during flight is a risky operation as radio links and precise timing are unreliable; so, autonomous Cansat flight software operation should be the primary mechanism for mission success.
+
+3.1.3 Simulation Mode
+The Cansat payload shall operate in two modes:
+
+FLIGHT mode where the Cansat operates as described in the Mission Overview section using actual sensor data, and
+SIMULATION mode where the Cansat receives simulated barometric pressure values from the Ground Station via SIMP commands and substitutes those values for the actual pressure sensor reading for calculation of altitude and for use by the flight software logic.
+Simulation Mode does not affect sensor data other than the barometric pressure sensor. In Simulation Mode, the telemetered pressure sensor data should reflect the commanded simulation values, not the actual sensor readings.
+
+The purpose of Simulation Mode is to provide a mechanism for testing the Cansat as well as for demonstrating the Cansat over the full mission profile in the event an actual launch cannot take place (due to weather or pandemic).
+
+The team’s Ground Station shall have the capability to read a barometric pressure data file that simulates the mission profile and transmit the values via commands to the Cansat at a rate of one per second. The pressure profile data file will be provided by the competition judges, and may vary between teams.
+
+Simulation Mode Concept of Operation
+For testing, pre-flight demonstration, and in a contingency where launch operations are not possible, a profile of barometric pressure data that represents the expected flight profile can be transmitted by the team’s Ground System at a rate of one sample per second. Upon receipt, the flight software will substitute the received value for the actual pressure sensor reading.
+
+The Cansat telemetry operates the same in FLIGHT and SIMULATION mode. So, the values, other than the pressure and altitude (calculated from the pressure values) will be actual sensor readings (e.g., actual battery, temperature, and GPS).
+
+<page_number>19</page_number>
+
+Page 20
+Because accidental initiation of SIMULATION mode can endanger the flight mission, two commands, SIM ENABLE and SIM ACTIVATE, must be received by the flight software before Simulation mode is activated.
+
+After activation, the flight software monitors the radio link for barometric pressure sensor commands (SIMP) from the Ground Station and uses the received values as if they were actual barometric pressure readings in the calculation of altitude, determination software state, and when to release the Cansat.
+
+3.2 Banned Materials and components
+
+No foam based beads or other similar bits of foam material that can be dropped and lost on the ground. This material is dangerous to the livestock that occupy this area.
+No lithium polymer batteries. The battery is relatively easy to damage and a fire hazard. We want to avoid setting any parts of the field on fire.
+3.3 Environmental Tests
+
+Four tests are to be conducted to test the construction quality and material performance. To verify test results, teams should provide: 1) Environmental Test Document based on the provided template file. 2) Videos of the tests performed as specified in the template document. If using a phone camera, orient the phone sideways for wider video view. Only one submission will be accepted. Late submissions will not be scored.
+
+Drop Test - This test is designed to verify that the parachute and attachment point will survive the deployment. Component mounts and battery mount will also be tested. The drop test generates about 30 Gs of shock to the system. a. Drop Test Description - This test requires a 61 cm non-stretching cord. The test was developed with a 1/8 thick kevlar cord. One end is secured to an eyebolt attached to a fixed point, such as ceiling or rigid structure with enough clearance to accommodate the cord, Cansat, and free space so the Cansat does not hit the ground. The other end is tied to the parachute. A floor mat or pillow may be placed under the Cansat for the drop test. The structure must not flex during the drop test. This test cannot be performed by holding the cord. The cord must be secured to a solid structure. Holding any part of the test structure is not valid. b. Drop Test Procedure - i. Power on Cansat. ii. Verify telemetry is being received.
+<page_number>20</page_number>
+
+Page 21
+iii. Raise Cansat by the attached cord, so that the attachment points of the cord, on the eye bolt and the parachute, are at the same height. iv. Release the Cansat. v. Verify the Cansat did not lose power. vi. Inspect for any damage, or detached parts. vii. Verify telemetry is still being received.
+
+Thermal Test - This test is to verify the Cansat can operate in a hot environment. When the Cansat is integrated into the rocket and sitting on the launch pad, the sun can heat up the payload section of the rocket to temperatures up to the mid to upper 30C. This test will determine if any materials warp, weaken, change characteristics, or fail to function at temperatures up to 35C. a. Thermal Test Description - This test requires a method to heat the Cansat to 60C for a period of 2 hours. This will allow the components to rise to heat, and verify that they continue to function. One way to heat the Cansat is a thermal chamber; there are a few ways to build a thermal chamber. i. The simplest is to acquire an insulating cooler, one or more hair dryers and a thermometer, preferably a remote thermometer such as a thermocouple or thermistor. Place the Cansat, hair dryer(s) and thermometer in the cooler. Try to seal any openings. Make sure the hair dryer does not blow directly on the Cansat. The hair dryer will circulate and heat the air in the cooler. ii. Another method is to build a thermal chamber with foam insulation sheets. Select the sheets that have one side with a foil layer. Build a box and have one side be a lid. Seal all edges with duct tape. You can make a hole in the side to run cords and thermocouple through. iii. It is highly suggested the thermistor or thermocouple be attached to the Cansat. The purpose is to make sure the Cansat does reach the peak temperature. The air will reach the peak temperature long before the Cansat does. b. Thermal Test Procedure - i. Place Cansat into a thermal chamber. ii. Turn on the Cansat. iii. Close and seal the thermal chamber. iv. Turn on the heat source. v. Monitor the temperature and turn off the heat source when the internal temperature reaches 60C and turn on the heat source when the temperature drops to 55C. vi. Maintain the test conditions for two hours.
+<page_number>21</page_number>
+
+Page 22
+vii. Turn off the heat source and perform visual inspection and any functional tests to verify the Cansat survived the thermal exposure and can operate as expected. viii. With the Cansat still hot, test any mechanisms and structures to make sure the integrity has not been compromised. Take precautions to avoid injury. ix. Verify epoxy joints and composite materials still maintain their strengths.
+
+Vibration Test - This test is designed to verify the mounting integrity of all components, mounting connections, structural integrity, and battery connections. a. Vibration Test Description - The test uses a random orbital sander. The sander is a hand held power tool where the sanding head moves in a random pattern, not spinning. Random orbital sanders operate at fixed orbits per minute (opm) ranging from 12,000 to 14,000 opm. That translates to 200 to 233 Hz. This test takes advantage of the power up and power down phases of the sander. The sander does not instantly turn on at 14,000 opm, it takes at most a second to get up to speed. That transition time can hit some resonances of the Cansat. This test requires the sander to be cycled regularly over a one minute duration exposing the Cansat to vibrations from 0 Hz to 233 Hz. The amount of shaking generated by the sander is around 20 to 29 Gs. Do not use a disc sander that just spins. i. One setup for the test is to secure the sander, upside down, via a bench vise; the Cansat should be secured where the sand-paper is installed. The bench vise must be secured to a table. The vise cannot be allowed to move freely and the sander cannot be held by hand. The model number of the sander must be provided in the documentation. b. Vibration Test Procedure - i. Power on the Cansat. ii. Verify accelerometer data is being collected. iii. Power up the sander. iv. Once the sander is up to full speed, wait 5 seconds. v. Power down the sander to a full stop. vi. Repeat steps iii to v four more times. vii. Inspect the Cansat for damage and functionality. viii. Verify accelerometer data is still being collected. ix. Power down Cansat.
+
+Vacuum Test - This test is designed to verify deployment operation of the payload(s). A vacuum chamber can be simply constructed using a bucket or pail of 5 gallons or 18+ litres. A lid can be used or a ¼ inch or 6 mm thick sheet of polycarbonate can be
+
+<page_number>22</page_number>
+
+Page 23
+placed on top of the bucket. Do not use acrylic as that can shatter. A vacuum cleaner or shop vacuum can be used to pull a vacuum. i. Suspend the fully configured and powered Cansat in the vacuum chamber. ii. Turn on the vacuum to start pulling a vacuum. iii. Monitor the telemetry and stop the vacuum when the peak altitude has been reached. iv. Let the air enter the vacuum chamber slowly and monitor the operation of the Cansat. v. Collect and save telemetry vi. Make the saved telemetry available for the judges to review. vii. Show in video that all mechanisms are activated based on altitude changes.
+
+<page_number>23</page_number>
+
+Page 24
+4. Team Composition
+Students currently enrolled in undergraduate degree programs, or students having graduated from such programs since the start of the current competition cycle, are counted as undergraduate students.
+
+Students currently enrolled in post-graduate degree programs (MS, PhD), or students having entered such programs since the start of the current competition cycle, are counted as graduate students.
+
+4.1 Team Size
+Each team shall consist of between 3 and 10 students (undergraduate teams) from an accredited college or university. Teams may consist entirely of undergraduate students (undergraduate teams), entirely of graduate students (grad teams), or a combination of the two (mixed teams). Graduate teams shall consist of no more than 5 students. Mixed teams shall consist of no more than 7 undergraduate students and 3 graduate students.
+
+Teams from the same school must develop their designs independently and not copy from other teams. Bulk purchasing of materials is allowed such as batteries and raw materials for construction. Sharing tools and services are allowed. Designs must originate from within the team.
+
+There shall be no more than three teams from any one school.
+
+4.2 Faculty Advisor
+Each team must have a faculty advisor. The role of the faculty advisor is to:
+
+Provide a point of contact for the team, both with the university and the competition.
+Aid teams with logistics such as arranging conference rooms, laboratory resources, etc.
+Providing general guidance throughout the competition.
+The faculty advisor shall not:
+
+Make design decisions or direct recommendations.
+Participate in more than an oversight role during reviews.
+5. Deliverable Items
+Teams will be evaluated based on a series of deliverable items provided at various stages of the development. The deliverable items are selected to provide representative real-world milestones for tracking the Cansat development and ensuring team success.
+
+<page_number>24</page_number>
+
+Page 25
+5.1 Preliminary Design Review
+The PDR is a “multi-disciplinary technical review to ensure that the system under review can proceed into detailed design, and can meet the stated performance requirements within cost (program budget), schedule (program schedule), risk, and other system constraints”. The Cansat PDR shall demonstrate:
+
+An understanding of the Cansat mission requirements
+Allocation and derivation of system and subsystem requirements
+Definition of the Cansat concept of operations
+Overview of preliminary design that meets specified requirements
+Results of, or identification of, necessary trades to support preliminary design. While it is ideal to have completed trades prior to the preliminary design, it is not necessary.
+Results of, or identification of, necessary prototyping or testing efforts necessary to support or finalize the preliminary design.
+Preliminary budget
+Detailed development schedule
+Preliminary design reviews shall be conducted via teleconference coordinated by the team lead(s). The PDR presentations shall be less than 30 minutes in duration including time for questions. Presentation reviewers shall be permitted to ask questions during the presentation (i.e., questions are not held until the end of the presentation).
+
+The PDR shall follow the presentation template posted on the Cansat Competition website.
+
+5.2 Critical Design Review
+The CDR is “a multi-disciplined technical review to ensure that the system under review can proceed into system fabrication, demonstration, and test; and can meet the stated performance requirements within cost (program budget), schedule (program schedule), risk, and other system constraints”. The CDR shall demonstrate:
+
+All PDR level requirement TBDs and TBRs shall be resolved
+Refinement of the Cansat CONOP
+Results of detailed design and analysis for each subsystem
+Verification that detailed design meets system and subsystem level requirements
+Identification of subsystem and system level tests necessary for requirements verification
+Results of requirements verification tests completed to date
+Overview of mission operations
+Preliminary launch day sequence of events
+Revised budget
+<page_number>25</page_number>
+
+Page 26
+Updated development schedule
+Critical design reviews shall be conducted via teleconference coordinated by the team lead(s). The CDR presentations shall be less than 30 minutes in duration including time for questions. Presentation reviewers shall be permitted to ask questions during the presentation (i.e., questions are not held until the end of the presentation).
+
+The CDR shall follow the presentation template specified in the "Cansat CDR Outline" document available on the Cansat Competition website. Extra material in the form of backup slides is permitted.
+
+Each section of the CDR shall be scored in accordance with the values listed in the outline. The CDR shall contribute to the total evaluation of the Cansat design according to the values listed in the section Evaluation and Scoring.
+
+5.3 Post Flight Review
+The PFR provides an assessment of flight operations and results of the demonstration flight. The PFR provides an assessment of successful and unsuccessful flight operations. The PFR shall provide:
+
+Overview of mission objectives and Cansat design
+Comparison of planned and actual CONOPS and SOE
+Raw and processed data from flight operations
+Failure analysis and assessment (for unsuccessful mission objectives)
+Post Flight Reviews shall be conducted the day following the demonstration flight activities, unless flight operations are canceled due to weather. Presentations shall be limited to 20 minutes, including questions.
+
+Each section of the PFR shall be scored in accordance with the values listed in the outline. The PFR shall contribute to the total evaluation of the Cansat design according to the values listed in the section Evaluation and Scoring.
+
+Post Flight Review presentations shall be submitted by 9:30 AM to the judges. There will be two presentation rooms. Teams will be pre-assigned to the presentation room. Each team will be given a thumb drive. Teams are to install their PFR slides on the thumb drive and deliver the thumb drive to the designated location between 9 AM and 9:30 AM Sunday. Teams delivering after 9:30 AM will lose points. This is done to make sure all teams have the same amount of time to prepare for PFR.
+
+5.4 Deliverable Submissions and Scheduling
+All deliverable items shall be submitted to the competition email by the dates listed in Table 1.
+
+<page_number>26</page_number>
+
+Page 27
+All deliverable items shall be submitted in PDF format using the naming convention listed in Table 1 where # corresponds to the assigned team number for each team and v# is a unique revision number for the review package that can be used to track revisions. For example, a submission for imaginary team number 1000 of version 2 of the PDR package would be named Cansat2026_1000_pdr_v02.pdf. Note that adherence to the filename and format specification is scored during the competition.
+
+If you resubmit your presentation, you must increment the version number otherwise the previous version may be used. If so, scoring will reflect the previous version. With a large number of submissions and resubmissions, it is not possible to track correctly without using the version numbers.
+
+Presentations will be scheduled after submission of the document. A calendar of available time slots will be sent to all teams. Each team is to send to the competition email a list of three time slots. The team will be notified of which time slot they are assigned.
+
+Updated presentations will not be accepted after the deadline. It is understood and expected that changes will occur between document submission and the presentation time. The scoring is based on the quality of the presentation and understanding of the competition requirements. There will be no point loss due to changes in the design between document submission time and the presentation time.
+
+Table 1: Deliverable item due dates
+
+Deliverable	Material Due	Required Filename Format	Due Date
+PDR	Cansat2026_XXXX_pdr_vYY.pdf	01/30/2026 23:59:59 UTC
+CDR	Cansat2026_XXXX_cdr_vYY.pdf	03/27/2026 23:59:59 UTC
+Environmental Test Document	Cansat2026_xxxx_env.pdf	5/22/2026 23:59:59 UTC
+Flight Telemetry Data	Flight_XXXX_.csv for Science Payload.	06/06/26
+PFR	Cansat2026_XXXX_pfr_vYY.pdf	06/07/2026 09:30:00 Local
+XXXX is the team number. YY is the revision number. Use this file format or your team will be removed from the competition. Files are to be in PDF format. No other formats will be accepted. Any submission after the deadline will be ignored.
+
+At the end of the competition, the PDR, CDR, and PFR packages may be placed on the website for reference in subsequent years.
+
+<page_number>27</page_number>
+
+Page 28
+5.5 Slide Format Guidelines
+The following guidelines shall be used when developing the presentation material:
+
+Use the template made available. Failure to do so will result in loss of points.
+All slides shall have simple white backgrounds. This helps reduce the file sizes and makes the slides easier to read.
+All slides shall have page numbers in the footer. This is to allow for easier referencing of material during the reviews.
+All slides shall list the presenter’s name in the footer. This provides all the reviewers with an identity as to who is presenting the material.
+No embedded files or movies shall be included in the presentations. Not all reviewers will be able to access or view movies during the reviews due to network security settings at the various organizations involved.
+Each line-item in the review outlines shall correspond to a dedicated slide. This may result in slides with single bullets on them, however, this makes it easier for the reviewers to follow the presentation.
+A slide template is not provided for PFR. Teams are allowed to be creative in their slide design but must include all the elements provided which is lifted from the PFR scoresheet. Videos may be embedded. The PFR shall be self contained and saved to the provided USB memory device. Do not assume internet access will be available at the post flight review.
+
+5.6 Disqualification Guidelines
+The following are grounds for removal from the competition.
+
+Any team found to be copying a PDR/CDR document from a previous competition will be disqualified from the competition.
+Any team not using the current mission guide will be disqualified.
+Any team not meeting the basic competition requirements by CDR will be disqualified.
+Any team submitting a PDR or CDR document that is not at least 70% complete or a score of less than 70% will be disqualified.
+Teams not demonstrating an understanding of the requirements of the competition will be disqualified.
+Any team copying slides, content and designs from other teams will be disqualified.
+Teams not submitting PDR and CDR documents in the required PDF format and file name convention as stated in the competition guide will be disqualified.
+Teams not submitting PDR and CDR documents by the due dates will be disqualified.
+Teams not scheduling presentation times by the specified date will be disqualified.
+Teams not attending the PDR and CDR teleconference within 15 minutes of the set time will be disqualified. Find a phone that works. It can be a computer, landline or
+<page_number>28</page_number>
+
+Page 29
+mobile phone.
+
+Teams exceeding 10 members at any time during the competition.
+Excessive arguing with judges or any staff.
+6. Launch Weekend
+
+6.1 Schedule All times are referenced to eastern daylight time.
+
+The competition starts Thursday and ends Sunday evening.
+
+The preflight briefing will be held Thursday.
+
+Flight readiness review and safety inspection will occur on Friday.
+
+Saturday will be the launch day unless weather causes a postponement.
+
+Sunday will be Post Flight Review presentations.
+
+A detailed schedule will be provided at a later date.
+
+6.2 Flight Readiness Review On Friday, teams are required to have their Cansats inspected for flight worthiness. Each team will be assigned a one half hour time slot to present their Cansat. This means the Cansat must be completed, built and ready to launch at the flight readiness review. A ball of wires and boards does not constitute flight ready. To emphasize, when presented at the Flight Readiness Review (FRR), it must be in a state where it can be turned on and placed into a rocket for immediate launch and be fully operational. Flight Readiness Review will be scored once. A team member must initial the score sheet to indicate agreement.
+
+6.2.1 FRR Sequence of Events The test and verification sequence shall follow the FRR score sheet order. The ground station functionality and data display shall be verified. The mechanical structure shall be verified for safety. Crew assignments must be submitted at the flight readiness review in the Mission Operations Manual. The mission operations manual will be reviewed at the FRR.
+
+A separate station will be for fit check and drop test. A fit check will be performed first to verify the container slides in and out of the airframe freely. The Cansat must be in flight configuration and will be subjected to the drop test. If the test fails, the team must make repairs before being allowed to fly. The Cansat must pass the drop test in order to be launched. Two stickers will be added to the Cansat container indicating passing of the fit check and drop test.
+
+<page_number>29</page_number>
+
+Page 30
+Safety is the highest priority. Any Cansat deemed not flight worthy will not be flown. The team will lose all flight day points.
+
+6.3 Team Member Launch Operations Crew Assignments
+
+Crew assignments must be submitted at the flight readiness review. The mission control officer will be given an identification so the flight coordinator and launch control officer knows who the mission control officer is.
+
+The mission operations manual will be reviewed at the flight readiness review.
+
+Team Member Launch Operations Crew Assignments
+
+In order to have a successful launch, teams need to coordinate among themselves and with the flight coordinator. Team members need to be assigned to specific tasks and develop a checklist for a successful flight. The following task assignments must be delegated:
+
+Mission Control Officer - This is a single person who is responsible for managing the team at the time of the launch. This person must verify with the ground station crew everything is ready. This person will do the countdown starting at 5. The rocket will be launched after the count reaches 1.
+
+Ground Station Crew - This is one or more persons who is responsible for monitoring the ground station for telemetry reception and issuing commands to the Cansat. Only the ground station crew should be at the ground station since there is limited space.
+
+Recovery Crew - This is one or two persons only responsible for tracking the Cansat and going out into the field for recovery. The recovery crew is responsible for returning the Cansat to the judges at check-in with any required payload still inside. The Cansat cannot be disassembled before presenting the Cansat to the judges for review and scoring or no points will be awarded.
+
+Cansat Crew - This is one or more persons responsible for preparing the Cansat ,integrating it into the rocket, and verifying its status.
+
+Team members can take on multiple roles except for the Mission Control Officer. The Mission Control Officer should be coordinating all efforts and interacting with the flight coordinator as needed. It is highly recommended that a checklist be developed that steps the crews through the preparation, integration, and flight operations.
+
+Crew assignments must be submitted at the flight readiness review.
+
+<page_number>30</page_number>
+
+Page 31
+6.4 Mission Operations Manual
+Each team is required to assemble a mission operations manual. The mission operations manual includes five checklists/operations procedures to be created by the team. The checklists are for configuring the ground station, preparing the Cansat, and integrating the Cansat into the rocket. The launch preparation procedures, launch procedure, and removal procedure are to be provided. Additional steps can be added by the team. The document is available for download and modification. Each section of the mission operations manual must start on its own page. Pages should be numbered and a table of contents is to be included.
+
+The team must have the mission operations manual assembled into a three ring binder. The mission control officer must use the manual during launch. The mission control operator shall go to the microphone at the launch site and announce their team and go through their launch procedure which will include the countdown to the launch.
+
+6.5 Launch Schedule
+All times are local time.
+
+The launch will start at 1pm local time. All Cansats are to be submitted by noon. The time period is from 8am to 12pm local time and is available for launch preparations and check in. This is the time to prepare antennas, ground stations, and final Cansat tests and preparations.
+
+Cansats must be submitted at the check-in by noon. Only one or two team members must be in line with the completed Cansat by noon. Teams who submit Cansats after the noon deadline will lose 100 points from launch day points. Cansats must be in flight ready condition in order to be in line. Teams cannot be in line while working on the Cansat. The Cansat must be in the stowed configuration and off when submitted. Teams will be kicked out of the check-in line if they are seen working on their Cansat or their Cansat is not fully assembled in the stowed configuration.
+
+The launch will start at 1pm and will be done in groups of five. Each team will be assigned a round which will be scheduled in one half hour increments. 15 minutes before the launch round, the teams assigned to the round shall retrieve their Cansat, turn it on and insert it into the rocket payload. Cansats shall not be disassembled at this stage. The Cansat must be flight ready and the only thing that can be done to the Cansat is to turn on the Cansat with the power switch. Any team that does not launch in their scheduled launch round will lose an additional 50 points. Any team that requires them to unload their Cansat from the rocket after the rocket is mounted on the launch pad will lose an additional 50 points. Any team that requires disassembly of their Cansat will lose an additional 100 points.
+
+Each team will be given a thumb drive to upload their ground station data after they have completed their flight operations. The thumb drive must be submitted to the judging table before leaving the field.
+
+There will be three judges per flight. A ground station judge will review the ground station and step through the ground station judging procedure. Once completed, the team will review the <page_number>31</page_number>
+
+Page 32
+score and initial. A second judge will be the flight observation judge who tracks the Cansat and verifies the Cansat separates from the rocket, the payload releases some time afterwards and the descent control device activates and works properly. A team member must be with the judge and together verify the events and initial the score sheet. A third judge will be in a nearby tent to score the csv telemetry file. The team must save the data and then present the csv file to the judge. The team member will show the judge the required data to be scored. The team member shall initial the score sheet when judging is completed.
+
+6.6 Competition Operations and Sequence of Events
+
+Details of flight day operations shall be provided at the Pre-Flight Brief. An overview of the flight day operations include the following activities:
+
+Arrive at launch site
+Prepare Cansat for turn in. Make it flight ready and perform any tests.
+Turn in Cansat at the check-in table by noon. It will be weighed and fit checked and stored in the stowed configuration in the off state until rocket preparation time.
+Upon the team round, the team will collect their Cansat and load it into a rocket.
+Verify the Cansat is communicating with the ground station.
+Take the rocket with the ground station to the assigned launch pad. A staff member will install the rocket on the launch pad.
+When it is time to launch, a judge will come by the ground station to monitor the ground station operation.
+The team mission control officer will go to the launch control table and execute the launch procedures with the flight coordinator providing oversight.
+Ground station crew will perform all required flight operations such as turning on telemetry and calibrating the sensors.
+After all Cansats have launched for the current half hour round, team recovery personnel can head out to recover.
+Ground station crew must clear out of the ground station area to allow the next round ground stations to set up.
+A ground station crew member must turn in the thumb drive with any ground station data to a designated judge and review the data for onsite scoring. The team member must initial the score sheet indicating agreement with the results. The thumb drive shall contain only the telemetry received from the ground station. Videos are to be presented at PFR.
+Recovery crew must return the Cansat to check-in to complete any final judging requirements.
+6.7 Second Flight Rules
+
+Second flights are rare but do occasionally happen. The following conditions will qualify for a second flight.
+
+Rocket engine failure, engine failure causes parachute not to deploy.
+<page_number>32</page_number>
+
+Page 33
+Rocket parachute failure. The parachute never deployed from the rocket.
+A team whose Cansat is destroyed due to a rocket failure will receive all launch day points only if they passed the drop test, the fit check, received all points on the FRR test, and had telemetry during the whole flight which includes ascent and descent or until a catastrophic rocket failure.
+
+Cansats that do not deploy from the rocket are not qualified for a second fight or all launch day points. It is up to the team to make sure their Cansat can deploy from the payload section of the rocket since the Cansat also operates as the nose cone. When the team installs the Cansat onto the rocket, make sure no part of the container parachute interferes with the shoulder of the container.
+
+6.8 Weather Delays
+
+If the Saturday launch gets rained out, Cansat demonstrations shall be performed Saturday using the launch schedule. The demonstration will require the drop test followed by the simulation demonstration where simulated pressure data is transmitted to the Cansat.
+
+If Sunday is clear, the launches will be performed and the PFR will be canceled.
+
+If Saturday and Sunday are rained out, the demonstration will be performed Saturday and the PFR will be on Sunday.
+
+<page_number>33</page_number>
+
+Page 34
+Appendix A Field Safety Rules
+Consumption of alcohol is not allowed.
+Smoking is only allowed at designated areas. If anyone is caught smoking where it is not allowed, the landowner can throw you off the field.
+Do not catch rockets or Cansats out of the air.
+Stay behind the designated range line unless the range safety officer (RSO) or launch control officer (LCO) or flight coordinator has given permission for you to put your rocket on your assigned pad.
+Pay attention at all times. Every launch is potentially hazardous.
+If a “heads up” launch is announced, you must be standing and facing the launch pad.
+Do not retrieve a rocket from the range unless the LCO has given you permission to do so.
+Everyone must be alert when a “heads up!” is called and be ready to move.
+Do not litter. Do not throw trash on the ground anywhere on the field. We have been invited to use the land owner's field and should treat it with respect. Any team caught throwing trash on the ground anywhere will be disqualified from the competition and the school will be notified of the disqualification. The landowner can order the team to leave the property and enforce the order.
+No student or team drones or flying vehicles are allowed.
+<page_number>34</page_number>
+
+Page 35
+Appendix B Presentation Recommendations
+The following recommendations for presentation content and layout are being provided based on past experiences of the judges. These recommendations are not required to be followed but make it easier for the judges to review the material presented.
+
+Use a consistent table format throughout the various subsystems when presenting requirements, component trades, and changes since previous reviews. Using a standard table format makes it easier for the judges to find the information in the table quickly since all tables are formatted the same.
+During the CDR, the Changes Since PDR slides should use a table that contains a discussion of what the state of the design was at PDR, what it is at CDR, and what the rationale of the change was. Details of the change can be discussed in subsequent slides so an in-depth discussion is not always necessary.
+Include the class year (freshman, sophomore, etc.) and major of each team member for reference. This doesn't play into the scoring of the team, however, it is often nice for the reviewer to know the status of the team members.
+Be sure to follow the PDR and CDR outlines very carefully. Provide at least one chart for each scored item in the outline; this makes it easier for the judges to follow the presentation and confirm the required information is provided. In the presentation, be sure to address the questions and topics listed in the "description" column of the presentation outline -- those are the key points the judges are looking for.
+Be clear which optional requirements, if any, are to be included in the design.
+Be detailed in test descriptions. Identify specific tests, what is going to be done, and the pass/fail criteria.
+<page_number>35</page_number>
+
+Page 36
+Appendix C Payload Deployment Description
+The Cansat will be mounted on top of the payload section with the required shoulder inserted into the airframe of the payload section along with any other part of the Cansat.
+
+The rocket motor has a delay grain that starts burning when the rocket motor is ignited. The delay grain burns for 10 seconds on a J425 or I280 Aerotech motor and then ignites the black powder charge that forces the rocket to separate into two parts and deploy the rocket's parachute. At this time, the Cansat should be pushed out or fall out of the payload section and start its descent. The rocket will descend on its own parachute.
+
+<page_number>36</page_number>
+
+Page 37
+Appendix D Acronyms
+A	Analysis
+CDR	Critical Design Review
+CONOP	Concept of Operations
+D	Demonstration
+DCS	Descent Control System
+FRR	Flight Readiness Review
+GCS	Ground Control Station
+HW	Hardware
+HWR	Hardware Review
+I	Inspection
+LCO	Launch Control Officer
+PDR	Preliminary Design Review
+PFB	Pre Flight Briefing
+PFR	Post Flight Review
+RPM	Revolutions Per Minute
+RSO	Range Safety Officer
+SOE	Sequence of Events
+T	Test
+TBD	To Be Determined
+TBR	To Be Resolved
+VM	Verification method
+<page_number>37</page_number>
+
+Page 38
+Appendix E Definitions
+Analysis	Verification method that utilizes evaluation of data generated by accepted analytical techniques or simulations under defined conditions to show the item will meet the specified requirements.
+CDR	A multi-disciplined technical review to ensure that the system under review can proceed into system fabrication, demonstration, and test; and can meet the stated performance requirements within cost (program budget), schedule (program schedule), risk, and other system constraints.
+CONOP	Describes what the system will do and the way the system works from the operator's perspective. The CONOP is a high level description that should include a top-level block diagram.
+Demonstration	Verification method that utilizes a qualitative exhibition of functional performance, usually accomplished with no or minimal instrumentation.
+Inspection	Verification method that utilizes an examination of the item against applicable documentation to confirm compliance with requirements.
+Need Date	Latest date a component or element (software, etc.) must be received or completed in order to not impact the end completion date.
+PDR	A multi-disciplined technical review to ensure that the system under review can proceed into detailed design, and can meet the stated performance requirements within cost (program budget), schedule (program schedule), risk, and other system constraints.
+Shall	Verb used to indicate a requirement is binding. All shall statements require verification.
+Should	Verb used to define a goal or non-mandatory provision.
+Test	Verification method utilizing operation of all or part of the item under controlled conditions, either real or simulated, to determine that the quantitative design or performance requirements have been met.
+To Be Determined	An item or parameter that has not been specified at the time of document release.
+To Be Resolved	An item or parameter that is preliminary or uncertain at the time of document release and for which a final value is to be specified at a later time.
+Validation	Confirms that the system, as built (or as it will be built), satisfies the user's needs. Confirmation you built the right thing.
+Verification	Confirms that the system, its elements, its interfaces, and incremental work products satisfy their requirements. Confirmation you built the
+<page_number>38</page_number>
+
+Page 39
+system right.
+
+Will
+
+Verb used to reference a binding or hard requirement elsewhere in the document text.
+
+<page_number>39</page_number>
+
+Page 40
+Appendix F – Payload Section
+The Cansat shall consist of two parts, the payload and the container. The container is defined here and is part of the rocket. A step CAD model will be provided as an example or used as is. The container consists of two parts. The disc plate shall be made of plywood of at least 6 mm thickness. A ¼ inch or similar size eyebolt shall be installed in the center with a fender washer on each side and a nylon lock nut.
+
+The container shall be 3D printed with a shoulder with a length of 90 to 120 mm and a diameter of 136 mm. The container shall be wider at 140 mm diameter above the shoulder and be 200 mm tall. The thickness of the container walls shall be at least 2 mm.
+
+The interior volume of the container and shoulder is available for the payload to occupy. The interior of the container can include other structures and mechanisms to support the stowing of the payload. The exterior cannot be changed.
+
+Two vent holes of at least 6 mm diameter are required in the container wall to help equalize air pressure during ascent.
+
+A test container was designed and 3D printed with PLA+ filament manufactured by Inland. It was designed as two pieces and held together with four 4-40 screws or M3 nuts. The screw head is located outside the container.
+
+The plywood disk is attached to the 3D printed container using four 4-40 screws, washers, and nuts or M3 screws, washers, and nuts.
+
+The purpose of the wood disk is to provide a solid structure for the eyebolt which will be attached to a parachute. The wood disk handles the deployment shock through the eyebolt.
+
+The Cansat container is the payload section of the rocket. When the rocket reaches apogee and the ejection charge fires, the Cansat container will be pushed out of the rocket along with its own parachute. The rocket will deploy its own parachute. The Container shall descend with its own parachute.
+
+<page_number>40</page_number>
+
+Page 41
+<img>3D rendering of a cylindrical container with labels indicating its parts: "Container" at the top, "Shoulder" near the middle, "Wood Disk" at the base, and "Eyebolt" attached to the wood disk.</img>
+
+Container Design
+
+<page_number>41</page_number>
+
+Page 42
+<img>original_image.jpg</img> External Dimensions
+
+<page_number>42</page_number>
+
+Page 43
+<img>A diagram showing a rocket with two sections labeled "Payload Section" and "Airframe". An arrow points to the lower section.</img>
+
+Container Installed in Payload Section of Rocket
+
+Link to the rocket kit: https://www.locprecision.com/product/minie-mag/
+
+The rocket motor used will either be an Aerotech I280 or J425..
+
+<page_number>43</page_number>
+
+Page 44
+Appendix G - Competition Calendar
+Date	Action
+8/12/2025	Competition Guide is posted.
+9/1/2025	Application is open to teams.
+11/1/2025	Applications are closed.
+12/15/2025	Application payments closed.
+1/12 - 1/30/2026	PDR Time slot selection.
+1/30/2026	PDR documents due by 23:59:59 UTC.
+2/2/26-2/20/26	PDR presentations.
+2/25//2026	Score sheets reviewed and sent to teams
+2/26-3/6	Teams review and identify errors
+3/11/2026	The top 40 teams are selected and invitation letters are sent out.
+3/14 - 3/27/2026	CDR Time slot selection.
+3/27/2026	CDR documents due by 23:59:59 UTC.
+4/6/26-4/24/26	CDR presentations.
+5/10/2026	CDR results posted.
+5/22/2026	Environmental Test Documents Due.
+6/4/2026	Preflight Briefing
+6/5/2026	Flight Readiness Review
+6/6/2026	Launch Date
+6/7/2026	Post Flight Review, Awards
+<page_number>44</page_number>

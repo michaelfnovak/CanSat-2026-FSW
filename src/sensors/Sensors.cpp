@@ -1,13 +1,21 @@
 #include "Sensors.h"
 #include <Arduino.h>
+#include <Wire.h>
 #include <math.h>
+
+// Adafruit sensor libraries (BMP390, INA219, BNO055)
+#include <Adafruit_BMP3XX.h>
+#include <Adafruit_INA219.h>
+#include <Adafruit_BNO055.h>
+#include <Adafruit_Sensor.h>
+#include <TinyGPSPlus.h>
 
 // Sensor state variables
 static float currentAltitude = 0.0f;
 static float currentPressure = 101.325f;  // kPa, sea level default
 static float currentTemperature = 20.0f;  // °C
-static float currentVoltage = 0.0f;
-static float currentCurrent = 0.0f;
+static float currentVoltage = 0.0f;       // Battery voltage (V)
+static float currentCurrent = 0.0f;       // Battery current (A)
 static float currentGyroR = 0.0f, currentGyroP = 0.0f, currentGyroY = 0.0f;
 static float currentAccelR = 0.0f, currentAccelP = 0.0f, currentAccelY = 0.0f;
 static float altitudeOffset = 0.0f;
@@ -26,14 +34,55 @@ static bool simulationModeEnabled = false;
 static bool simulationModeActive = false;
 static float simulatedPressure = 101325.0f;  // Pascals
 
+// Hardware sensor objects
+// BMP390 barometric sensor (I2C). Uses default I2C address (0x77 or 0x76 depending on wiring).
+static Adafruit_BMP3XX bmp;
+static bool bmpInitialized = false;
+
+// INA219 current/voltage sensor (I2C). Default address 0x40.
+static Adafruit_INA219 ina219;
+
+// BNO055 IMU (I2C). Common address is 0x28; change to 0x29 if your board is configured that way.
+static Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+// GPS module (UART). Adjust port/baud to match your wiring and Arduino test code.
+// Example: GPS wired to Teensy 4.1 Serial2 (RX2/TX2) at 9600 baud.
+static HardwareSerial& GPS_SERIAL = Serial2;
+static TinyGPSPlus gpsParser;
+
 void initSensors() {
-    // TODO: Initialize sensor hardware
-    // - Barometric pressure sensor (for altitude)
-    // - Temperature sensor
-    // - Battery voltage/current monitoring
-    // - IMU (gyro + accelerometer)
-    // - GPS module
-    // Initialize I2C, SPI, or other communication protocols
+    // Initialize I2C bus for BMP390, INA219, BNO055
+    Wire.begin();
+
+    // Initialize BMP390 barometric/temperature sensor
+    // Uses I2C, default address. Returns false if not found.
+    if (bmp.begin_I2C()) {
+        bmpInitialized = true;
+        // Configure oversampling / filter similar to Adafruit examples
+        bmp.setTemperatureOversampling(BMP3XX_OVERSAMPLING_8);
+        bmp.setPressureOversampling(BMP3XX_OVERSAMPLING_4);
+        bmp.setIIRFilterCoeff(BMP3XX_IIR_FILTER_3);
+        bmp.setOutputDataRate(BMP3XX_ODR_50_HZ);
+    } else {
+        bmpInitialized = false;
+    }
+
+    // Initialize INA219 current/voltage monitor
+    if (!ina219.begin()) {
+        // Leave voltage/current at 0 on failure
+    }
+
+    // Initialize BNO055 IMU
+    if (!bno.begin()) {
+        // Leave gyro/accel at 0 on failure
+    } else {
+        // Use external crystal for better accuracy if available
+        bno.setExtCrystalUse(true);
+    }
+
+    // Initialize GPS UART (TinyGPSPlus parser in updateSensors)
+    // Adjust baud rate to match your GPS module and Arduino test code.
+    GPS_SERIAL.begin(9600);
     
     altitudeOffset = 0.0f;
     previousAltitude = 0.0f;
@@ -148,25 +197,72 @@ void setSimulatedPressure(float pressure_pa) {
 }
 
 void updateSensors() {
-    // TODO: Read sensor data and update all sensor values
-    // This should be called periodically from main loop
+    // Read sensor data and update all sensor values.
+    // This should be called periodically from main loop.
     
     uint32_t now = millis();
     
     if (!simulationModeActive) {
-        // TODO: Read actual sensor values
-        // - Read barometric pressure sensor
-        // - Read temperature sensor
-        // - Read battery voltage/current
-        // - Read IMU (gyro + accelerometer)
-        // - Read GPS module
-        
-        // Calculate altitude from pressure (barometric formula)
-        // altitude = 44330 * (1 - (P/P0)^0.1903)
-        const float P0 = 101325.0f;  // Sea level pressure in Pa
-        float pressurePa = currentPressure * 1000.0f;  // Convert kPa to Pa
-        float calculatedAltitude = 44330.0f * (1.0f - powf(pressurePa / P0, 0.1903f));
-        currentAltitude = calculatedAltitude - altitudeOffset;
+        // --- BMP390: temperature, pressure, altitude ---
+        if (bmpInitialized && bmp.performReading()) {
+            currentTemperature = bmp.temperature;            // °C
+            // bmp.pressure is in Pascals
+            float pressurePa = bmp.pressure;
+            currentPressure = pressurePa / 1000.0f;         // kPa
+
+            // Calculate altitude from pressure (barometric formula)
+            // altitude = 44330 * (1 - (P/P0)^0.1903)
+            const float P0 = 101325.0f;  // Sea level pressure in Pa
+            float calculatedAltitude = 44330.0f * (1.0f - powf(pressurePa / P0, 0.1903f));
+            currentAltitude = calculatedAltitude - altitudeOffset;
+        }
+
+        // --- INA219: battery voltage and current ---
+        // Bus voltage in volts and current in milliamps
+        float busVoltage_V = ina219.getBusVoltage_V();
+        float current_mA = ina219.getCurrent_mA();
+        currentVoltage = busVoltage_V;
+        currentCurrent = current_mA / 1000.0f;  // Convert mA to A
+
+        // --- BNO055: gyro and accelerometer ---
+        sensors_event_t imuEvent;
+
+        // Gyroscope (angular velocity). Map x/y/z to roll/pitch/yaw.
+        bno.getEvent(&imuEvent, Adafruit_BNO055::VECTOR_GYROSCOPE);
+        currentGyroR = imuEvent.gyro.x;
+        currentGyroP = imuEvent.gyro.y;
+        currentGyroY = imuEvent.gyro.z;
+
+        // Accelerometer (linear acceleration). Map x/y/z to roll/pitch/yaw axes.
+        bno.getEvent(&imuEvent, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+        currentAccelR = imuEvent.acceleration.x;
+        currentAccelP = imuEvent.acceleration.y;
+        currentAccelY = imuEvent.acceleration.z;
+
+        // --- GPS: parse NMEA sentences from GPS_SERIAL using TinyGPSPlus ---
+        while (GPS_SERIAL.available() > 0) {
+            char c = (char)GPS_SERIAL.read();
+            gpsParser.encode(c);
+        }
+
+        if (gpsParser.location.isValid()) {
+            gpsLatitude  = gpsParser.location.lat();
+            gpsLongitude = gpsParser.location.lng();
+        }
+
+        if (gpsParser.altitude.isValid()) {
+            gpsAltitude = gpsParser.altitude.meters();
+        }
+
+        if (gpsParser.satellites.isValid()) {
+            gpsSatellites = (uint8_t)gpsParser.satellites.value();
+        }
+
+        if (gpsParser.time.isValid()) {
+            gpsHour   = (uint8_t)gpsParser.time.hour();
+            gpsMinute = (uint8_t)gpsParser.time.minute();
+            gpsSecond = (uint8_t)gpsParser.time.second();
+        }
     }
     
     // Update vertical velocity calculation
