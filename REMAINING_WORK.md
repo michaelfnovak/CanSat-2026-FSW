@@ -17,10 +17,9 @@ Areas where implementation is still needed (TODOs, placeholders, and incomplete 
 
 | Area | What to do |
 |------|------------|
-| **zeroAltitude()** ~L177 | (Optional improvement) Consider also persisting simulation mode state if you want resets in sim mode to preserve that configuration. |
 | **calculateCurrentHeading()** ~L121 | Return current heading (e.g. from GPS course or IMU yaw); replace “return 0” placeholder. |
 
-All required sensors (BMP390, INA219, BNO055, GPS) are initialized and used; simulated pressure and altitude are implemented.
+All required sensors (BMP390, INA219, BNO055, GPS) are initialized and used; simulated pressure and altitude and zero-alt persistence are implemented.
 
 ---
 
@@ -79,11 +78,9 @@ Paraglider logic (bearing to target, heading error, 10 Hz updates) is in place; 
 
 | Area | What to do |
 |------|------------|
-| **initCommands()** ~L14 | Set up command buffer, parser state, or RX queue if used. |
-| **processMECCommand() device mapping** ~L123 | Extend the `device` string handling (e.g. "PROBE", "PAYLOAD", "PARAGLIDER1", "PARAGLIDER2") and call the right servo/mechanism functions (F7). |
-| **processCommands() / updateCommands()** ~L223 | Replace “read from XBee” placeholder: get bytes from XBee (e.g. via `xbeeReceive` or a serial buffer), assemble full lines, then call `parseCommand(cmdString)`. |
+| **MEC commands** ~L118 | Expand device mapping further only if you add new mechanisms; current mapping covers PROBE, PAYLOAD, FS1, FS2. |
 
-CX, ST, SIM, SIMP, CAL parsing and behavior are implemented; MEC and XBee ingestion need wiring to your hardware.
+CX, ST (including ST,GPS), SIM, SIMP, CAL, MEC parsing and behavior are implemented; XBee ingestion is wired via xbeeReceive.
 
 ---
 
@@ -95,9 +92,7 @@ CX, ST, SIM, SIMP, CAL parsing and behavior are implemented; MEC and XBee ingest
 - Servos: pin assignment, PWM/servo init, probe/payload release, paraglider PWM output and (if used) heading source.
 
 **Important (rules / robustness):**
-- Sensors: `zeroAltitude()` for CAL; simulated pressure → altitude for sim mode.
-- Timing: `setMissionTimeFromGPS()` for ST,GPS.
-- Commands: XBee RX → `parseCommand()`; MEC device mapping to mechanisms.
+- Timing: optional `updateTiming()` enhancements if desired.
 
 **Optional / tuning:**
 - Paraglider: real heading (GPS/IMU), pitch/roll on servo 2, gains (STEERING_GAIN, MAX_SERVO_DEFLECTION).

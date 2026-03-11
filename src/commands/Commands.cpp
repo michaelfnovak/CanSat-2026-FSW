@@ -7,14 +7,41 @@
 #include <Arduino.h>
 #include <string.h>
 #include <stdlib.h>
+#include <EEPROM.h>
 
 static uint16_t teamID = 0;
+
+// EEPROM addresses for simulation mode configuration state
+// Reserve addresses 50-51 for simulationEnabled and simulationActive flags.
+const int EEPROM_SIM_ENABLED_ADDR = 50;
+const int EEPROM_SIM_ACTIVE_ADDR  = 51;
 
 void initCommands() {
     // Command buffer and line assembly are in XBee (xbeeReceive returns one line per call).
     // Parser state is stateless: parseCommand() handles each line.
     // Team ID must be set by main via setTeamID() after init.
     teamID = 0;
+
+    // Restore simulation configuration state (F8) so resets in simulation mode are handled.
+    bool storedSimEnabled = (EEPROM.read(EEPROM_SIM_ENABLED_ADDR) == 1);
+    bool storedSimActive  = (EEPROM.read(EEPROM_SIM_ACTIVE_ADDR)  == 1);
+
+    if (storedSimEnabled) {
+        // Reflect stored configuration in local flags
+        // Note: we still require SIM,ENABLE before SIM,ACTIVATE in normal operation;
+        // this simply re-applies the last configuration after a reset.
+        simulationEnabled = storedSimEnabled;
+        simulationActive  = storedSimActive;
+
+        if (simulationActive) {
+            // Re-enter simulation mode on reset
+            setSimulationMode(true);
+            setTelemetryMode(MODE_SIMULATION);
+        } else {
+            setSimulationMode(false);
+            setTelemetryMode(MODE_FLIGHT);
+        }
+    }
 }
 
 void setTeamID(uint16_t id) {
@@ -71,6 +98,7 @@ bool processSIMCommand(const char* action) {
     
     if (strcmp(action, "ENABLE") == 0) {
         simulationEnabled = true;
+        EEPROM.write(EEPROM_SIM_ENABLED_ADDR, 1);
         setCommandEcho("SIMENABLE");
         return true;
     } else if (strcmp(action, "ACTIVATE") == 0) {
@@ -78,6 +106,7 @@ bool processSIMCommand(const char* action) {
             simulationActive = true;
             setSimulationMode(true);
             setTelemetryMode(MODE_SIMULATION);
+            EEPROM.write(EEPROM_SIM_ACTIVE_ADDR, 1);
             setCommandEcho("SIMACTIVATE");
             return true;
         }
@@ -87,6 +116,8 @@ bool processSIMCommand(const char* action) {
         simulationActive = false;
         setSimulationMode(false);
         setTelemetryMode(MODE_FLIGHT);
+        EEPROM.write(EEPROM_SIM_ENABLED_ADDR, 0);
+        EEPROM.write(EEPROM_SIM_ACTIVE_ADDR, 0);
         setCommandEcho("SIMDISABLE");
         return true;
     }

@@ -38,8 +38,8 @@ void setup() {
     // Restore mission time from persistent storage (required: F2)
     // Note: restoreMissionTime() is called in initTiming()
     
-    // Initialize flight state
-    flightState = PRELAUNCH;
+    // Initialize flight state from non-volatile storage
+    initFlightState();
     
     // Set target GPS coordinates for paraglider navigation (landing target)
     setTargetLocation(38.375833f, -79.607778f);

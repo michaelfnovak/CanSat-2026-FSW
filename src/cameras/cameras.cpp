@@ -13,32 +13,39 @@ static HardwareSerial& CAM1_SERIAL = Serial3;
 static HardwareSerial& CAM2_SERIAL = Serial4;
 
 static bool camerasInitialized = false;
-static bool camerasRecording = false;
+static bool camera1Recording = false;
+static bool camera2Recording = false;
 
 void initCameras() {
     // Match camera_tester.ino: ESP32-CAM uses Serial at 115200 baud
     CAM1_SERIAL.begin(115200);
     CAM2_SERIAL.begin(115200);
     camerasInitialized = true;
-    camerasRecording = false;
+    camera1Recording = false;
+    camera2Recording = false;
 }
 
-void startCamerasRecording() {
-    if (!camerasInitialized || camerasRecording) {
-        return;
-    }
-    // Send START command with newline so readStringUntil('\n') works
+void startCamera1Recording() {
+    if (!camerasInitialized || camera1Recording) return;
     CAM1_SERIAL.print("START\n");
-    CAM2_SERIAL.print("START\n");
-    camerasRecording = true;
+    camera1Recording = true;
 }
 
-void stopCamerasRecording() {
-    if (!camerasInitialized || !camerasRecording) {
-        return;
-    }
+void stopCamera1Recording() {
+    if (!camerasInitialized || !camera1Recording) return;
     CAM1_SERIAL.print("STOP\n");
+    camera1Recording = false;
+}
+
+void startCamera2Recording() {
+    if (!camerasInitialized || camera2Recording) return;
+    CAM2_SERIAL.print("START\n");
+    camera2Recording = true;
+}
+
+void stopCamera2Recording() {
+    if (!camerasInitialized || !camera2Recording) return;
     CAM2_SERIAL.print("STOP\n");
-    camerasRecording = false;
+    camera2Recording = false;
 }
 

@@ -10,8 +10,10 @@
 
 static float maxAltitude = 0.0f; //starts at 0 but gets updated for comparison 
 static bool apogeeLatched = false;
-static bool camerasStarted = false;
-static bool camerasStopped = false;
+static bool camera1Started = false;
+static bool camera2Started = false;
+static bool launchPadInitialized = false;
+static float launchPadAltitude = 0.0f;
 
 void updateFlightState(uint32_t now_ms) {
 
@@ -22,17 +24,30 @@ void updateFlightState(uint32_t now_ms) {
 
     case PRELAUNCH:
         if (telemetryActive() && timeSetComplete()) {
-            flightState = LAUNCH_READY;
+            // Telemetry link is up and mission time is set; ready on the pad.
+            setFlightState(LAUNCH_PAD);
+            launchPadInitialized = false;  // will initialize on first pass through LAUNCH_PAD
         }
         break;
 
     case LAUNCH_PAD:
-        zeroAltitude();
-        resetServos();
-        // Reset camera state in case of re-flight or reset before launch
-        camerasStarted = false;
-        camerasStopped = false;
-        flightState = ASCENT;
+        // Initialize launch pad state once when we first enter LAUNCH_PAD
+        if (!launchPadInitialized) {
+            zeroAltitude();
+            resetServos();
+            // Reset camera state in case of re-flight or reset before launch
+            camera1Started = false;
+            camera2Started = false;
+            launchPadAltitude = getAltitude();
+            launchPadInitialized = true;
+        } else {
+            // Stay in LAUNCH_PAD until altitude starts to increase above pad level.
+            // A small threshold (e.g., 5 m) avoids noise.
+            const float ASCENT_THRESHOLD_M = 5.0f;
+            if (alt >= launchPadAltitude + ASCENT_THRESHOLD_M) {
+                setFlightState(ASCENT);
+            }
+        }
         break;
 
     case ASCENT:
@@ -41,44 +56,54 @@ void updateFlightState(uint32_t now_ms) {
         }
 
         if (vel < 0 && !apogeeLatched) {
-            flightState = APOGEE;
+            setFlightState(APOGEE);
             apogeeLatched = true;
         }
         break;
 
     case APOGEE:
-        // Start cameras just after apogee so they capture the descent,
-        // probe release (80% of peak altitude), and payload/egg release.
-        if (!camerasStarted) {
-            startCamerasRecording();
-            camerasStarted = true;
+        // Start camera 1 (payload separation camera) at apogee
+        // so it captures separation and early descent.
+        if (!camera1Started) {
+            startCamera1Recording();
+            camera1Started = true;
         }
-        flightState = DESCENT;
+        setFlightState(DESCENT);
         break;
 
     case DESCENT:
         if (alt <= 0.8f * maxAltitude) {
-            flightState = PROBE_RELEASE;
+            setFlightState(PROBE_RELEASE);
         }
         break;
 
     case PROBE_RELEASE:
         if (alt <= 2.0f) {
-            flightState = PAYLOAD_RELEASE;
+            setFlightState(PAYLOAD_RELEASE);
         }
         break;
 
     case PAYLOAD_RELEASE:
         if (fabs(vel) < 0.05f) {
-            flightState = LANDED;
+            setFlightState(LANDED);
+        }
+        // Start camera 2 (egg release camera) at payload release so it
+        // captures the instrument (egg) drop and touchdown.
+        if (!camera2Started) {
+            startCamera2Recording();
+            camera2Started = true;
         }
         break;
 
     case LANDED:
         // Stop cameras once we confirm landing (low vertical velocity).
-        if (camerasStarted && !camerasStopped) {
-            stopCamerasRecording();
-            camerasStopped = true;
+        if (camera1Started) {
+            stopCamera1Recording();
+            camera1Started = false;
+        }
+        if (camera2Started) {
+            stopCamera2Recording();
+            camera2Started = false;
         }
         break;
     }

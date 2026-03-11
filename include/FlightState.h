@@ -5,7 +5,6 @@
 // States telemetered as ASCII text: LAUNCH_PAD, ASCENT, APOGEE, DESCENT, PROBE_RELEASE, PAYLOAD_RELEASE, LANDED
 enum FlightState {
     PRELAUNCH,      // Internal state before launch pad
-    LAUNCH_READY,   // Internal state - ready for launch
     LAUNCH_PAD,     // On launch pad, ready to launch
     ASCENT,         // Rocket ascending
     APOGEE,         // Peak altitude reached
@@ -17,6 +16,12 @@ enum FlightState {
 
 // Global flight state variable
 extern FlightState flightState;
+
+// Initialize flight state from non-volatile storage (restore last state after reset)
+void initFlightState();
+
+// Set flight state and persist it to non-volatile storage
+void setFlightState(FlightState state);
 
 // Convert flight state to ASCII string for telemetry
 const char* flightStateToString(FlightState state);

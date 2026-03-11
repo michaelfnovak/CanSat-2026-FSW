@@ -4,11 +4,13 @@
 // Initialize camera serial links (ESP32-CAM modules)
 void initCameras();
 
-// Start recording on both cameras
-void startCamerasRecording();
+// Camera 1: payload separation camera
+void startCamera1Recording();
+void stopCamera1Recording();
 
-// Stop recording on both cameras
-void stopCamerasRecording();
+// Camera 2: payload/egg release camera
+void startCamera2Recording();
+void stopCamera2Recording();
 
 #endif // CAMERAS_H
 
