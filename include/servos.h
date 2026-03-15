@@ -4,31 +4,26 @@
 // Initialize servo control system
 void initServos();
 
-// Reset servos to default/initial position
+// Reset servos to default/initial position (called when entering LAUNCH_PAD)
 void resetServos();
 
-// Release probe (typically at 80% of max altitude)
+// Probe hatch (Servo 3) and egg release (Servo 4) — called from updateServos()
+// when flight state is PROBE_RELEASE / PAYLOAD_RELEASE (state is set in StateLogic;
+// main loop calls updateServos() which runs these).
 void releaseProbe();
-
-// Release payload (typically at 2m altitude)
 void releasePayload();
 
-// Direct test control of flight-surface servos (used by MEC commands)
-// When active is true, deflect to ~90 degrees; when false, return to 0 degrees.
+// MEC command test control of flight-surface servos (FS1, FS2)
 void setFlightSurface1Test(bool active);
 void setFlightSurface2Test(bool active);
 
-// Paraglider control (during PROBE_RELEASE phase)
-// Controls two servos for steering the paraglider toward target location
+// Paraglider steering during PROBE_RELEASE — skeleton only; extend for real control
 void updateParagliderControl();
 
-// Set target GPS coordinates for paraglider navigation
+// Target for paraglider navigation (used when you implement updateParagliderControl)
 void setTargetLocation(float targetLat, float targetLon);
 
-// Get current servo positions (for debugging/telemetry)
-void getParagliderServoPositions(float& servo1Pos, float& servo2Pos);
-
-// Update servo positions (call periodically)
+// Called every main loop iteration; runs releaseProbe/releasePayload and paraglider logic by state
 void updateServos();
 
 #endif // SERVOS_H
