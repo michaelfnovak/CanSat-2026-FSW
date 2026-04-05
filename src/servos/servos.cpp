@@ -498,11 +498,14 @@ void updateParagliderControl() {
                 releasePayload();
             }
 
-            float turnCmd = dampedTurnCommand(turnSign,
-                                              BASE_TURN_FINAL * 0.6f,
-                                              SYM_BRAKE_RELEASE,
-                                              GYRO_DAMP_GAIN_FINAL);
-            applyBrakeAndTurn(SYM_BRAKE_RELEASE, turnCmd);
+            float vzTrim = verticalSymmetricBrakeDeltaDeg(paragliderDtSec);
+            float sym = clampf(SYM_BRAKE_RELEASE + vzTrim, 0.0f, SERVO_MAX_ANGLE - SERVO_CENTER);
+            float turnCmd = lateralTurnCommandDeg(desiredBearing,
+                                                  HEADING_KP_RELEASE,
+                                                  BASE_TURN_FINAL * 0.6f,
+                                                  GYRO_DAMP_GAIN_FINAL,
+                                                  maxTurn);
+            applyBrakeAndTurn(sym, turnCmd);
             break;
         }
 
