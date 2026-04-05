@@ -81,19 +81,21 @@ void updateFlightState(uint32_t now_ms) {
         if (alt <= 2.0f) {
             setFlightState(PAYLOAD_RELEASE);
         }
+        //starts camera 2 recording at probe release
+        if (!camera2Started) {
+            startCamera2Recording();
+            camera2Started = true;
+        }
+
         break;
+        
 
     case PAYLOAD_RELEASE:
         if (fabs(vel) < 0.05f) {
             setFlightState(LANDED);
         }
-        // Start camera 2 (egg release camera) at payload release so it
-        // captures the instrument (egg) drop and touchdown.
-        if (!camera2Started) {
-            startCamera2Recording();
-            camera2Started = true;
-        }
-        break;
+
+        
 
     case LANDED:
         // Stop cameras once we confirm landing (low vertical velocity).
