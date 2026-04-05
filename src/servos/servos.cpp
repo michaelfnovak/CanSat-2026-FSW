@@ -51,17 +51,31 @@ static const float EGG_RELEASE_ALT_M     = 2.0f;
 // Guidance / control
 static const float MIN_VALID_SATS        = 4.0f;
 
-// Turn control without heading/course:
-// we use bearing-to-target sign + gyro yaw-rate damping
+// Gyro yaw-rate damping on lateral command (deg/s -> deg command)
 static const float GYRO_DAMP_GAIN_FAR    = 0.30f;
 static const float GYRO_DAMP_GAIN_MID    = 0.40f;
 static const float GYRO_DAMP_GAIN_FINAL  = 0.50f;
 
-// Base turn magnitudes
+// Heading-error gain when GPS COG or IMU heading is available (deg command per deg error)
+static const float HEADING_KP_FAR        = 0.32f;
+static const float HEADING_KP_MID        = 0.38f;
+static const float HEADING_KP_SPIRAL     = 0.42f;
+static const float HEADING_KP_FINAL      = 0.28f;
+static const float HEADING_KP_RELEASE    = 0.24f;
+
+// Fallback coarse turn when no heading reference (bearing hemisphere only)
 static const float BASE_TURN_FAR         = 10.0f;
 static const float BASE_TURN_MID         = 14.0f;
 static const float BASE_TURN_SPIRAL      = 16.0f;
 static const float BASE_TURN_FINAL       = 8.0f;
+
+// Vertical descent rate (C7): baro vz is positive up; target ~ -5 m/s
+static const float VZ_CMD_MPS            = -5.0f;
+static const float VZ_LPF_ALPHA          = 0.35f;
+static const float VZ_KP                 = 0.85f;
+static const float VZ_KI                 = 0.20f;
+static const float VZ_INT_MAX            = 4.0f;
+static const float VZ_DELTA_CLAMP        = 7.0f;
 
 // Symmetric braking values
 static const float SYM_BRAKE_NONE        = 0.0f;
@@ -99,6 +113,10 @@ static bool targetSet = false;
 // Timing
 static uint32_t probeReleaseMs = 0;
 static uint32_t spiralEntryMs = 0;
+
+// Vertical-rate PI state (updated at paraglider control rate)
+static float vzFiltered = 0.0f;
+static float vzIntegral = 0.0f;
 
 // ================= DESCENT STAGES =================
 
@@ -225,46 +243,62 @@ static bool landedDetected() {
             currentAltitude() < LANDED_ALT_M);
 }
 
-// ================= TURN LOGIC =================
+// ================= LATERAL (C8) + VERTICAL (C7) =================
 //
-// Since current interface does NOT expose GPS course / heading,
-// we cannot do true heading-error PD steering.
+// Trade study (implemented policy):
+// - Primary heading reference: GPS course-over-ground when speed >= 1.2 m/s and fix is good.
+//   COG matches horizontal motion toward the target and is the right control variable for
+//   "steer to target" under glide.
+// - Fallback: BNO055 Euler heading (mag fusion) when COG is unusable (slow drift / startup).
+//   Weaker near batteries/servos and under swing; still better than bearing-hemisphere alone.
+// - Last resort: bearing hemisphere sign (legacy) if both references fail.
 //
-// So we use a simpler autonomous strategy:
-// - compute bearing to target from current GPS position
-// - use bearing hemisphere / sign relative to north as a coarse steering bias
-// - use gyro yaw-rate as damping to avoid over-rotation
-//
-// This is less sophisticated than full heading control, but it is
-// implementable using only currently available data.
+// Symmetric brake baseline per stage + PI trim on baro vertical velocity toward ~5 m/s descent.
 
 static float chooseTurnSignFromBearing(float targetBearingDeg) {
-    // Coarse rule:
-    // Bearings in [0,180) bias one turn direction, [180,360) bias the other.
-    // You must bench-test sign convention and swap if needed.
     if (targetBearingDeg < 180.0f) {
         return +1.0f;
-    } else {
-        return -1.0f;
     }
+    return -1.0f;
 }
 
-static float dampedTurnCommand(float turnSign,
-                               float baseTurnMagnitude,
-                               float symmetricBrake,
-                               float gyroDampGain) {
+// Positive command => left turn (see applyBrakeAndTurn).
+static float lateralTurnCommandDeg(float bearingToTargetDeg,
+                                   float headingKp,
+                                   float fallbackBaseTurnDeg,
+                                   float gyroDampGain,
+                                   float maxTurnDeg) {
+    float refHeading = 0.0f;
+    uint8_t refSource = 0;
     float yawRate = currentYawRateDegPerSec();
 
-    // If turning left (positive command), positive yaw rate should reduce command.
-    // If turning right (negative command), negative yaw rate should reduce magnitude.
-    float rawCmd = turnSign * baseTurnMagnitude - gyroDampGain * yawRate;
+    if (getHeadingReferenceDeg(&refHeading, &refSource)) {
+        float err = wrapAngle180(bearingToTargetDeg - refHeading);
+        const float deadbandDeg = 5.0f;
+        if (fabsf(err) < deadbandDeg) {
+            err = 0.0f;
+        }
+        // Turn toward bearing: err > 0 => need clockwise => negative turn command
+        float cmd = -headingKp * err - gyroDampGain * yawRate;
+        return clampf(cmd, -maxTurnDeg, maxTurnDeg);
+    }
 
-    // Limit to safe turn range relative to symmetric braking.
-    float maxTurn = 18.0f;
-    rawCmd = clampf(rawCmd, -maxTurn, +maxTurn);
+    float turnSign = chooseTurnSignFromBearing(bearingToTargetDeg);
+    float cmd = turnSign * fallbackBaseTurnDeg - gyroDampGain * yawRate;
+    return clampf(cmd, -maxTurnDeg, maxTurnDeg);
+}
 
-    (void)symmetricBrake;
-    return rawCmd;
+static float verticalSymmetricBrakeDeltaDeg(float dtSec) {
+    float vz = currentVerticalVelocity();
+    vzFiltered = VZ_LPF_ALPHA * vz + (1.0f - VZ_LPF_ALPHA) * vzFiltered;
+
+    // e > 0: measured vz above target (e.g. -2 > -5) => descending too slowly => add brake
+    float e = vzFiltered - VZ_CMD_MPS;
+    vzIntegral += e * dtSec;
+    vzIntegral = clampf(vzIntegral, -VZ_INT_MAX, VZ_INT_MAX);
+
+    float delta = VZ_KP * e + VZ_KI * vzIntegral;
+    return clampf(delta, -VZ_DELTA_CLAMP, VZ_DELTA_CLAMP);
 }
 
 // ================= STAGE DECISION LOGIC =================
@@ -321,6 +355,8 @@ void initServos() {
     probeReleaseMs = 0;
     spiralEntryMs = 0;
     lastParagliderUpdate = 0;
+    vzFiltered = 0.0f;
+    vzIntegral = 0.0f;
 }
 
 void resetServos() {
@@ -340,6 +376,8 @@ void resetServos() {
     probeReleaseMs = 0;
     spiralEntryMs = 0;
     lastParagliderUpdate = 0;
+    vzFiltered = 0.0f;
+    vzIntegral = 0.0f;
 }
 
 void setFlightSurface1Test(bool active) {
@@ -378,6 +416,8 @@ void setTargetLocation(float targetLat, float targetLon) {
 
 void updateParagliderControl() {
     uint32_t now = millis();
+    const float paragliderDtSec = 1.0f / PARAGLIDER_UPDATE_HZ;
+    const float maxTurn = 18.0f;
 
     if (!targetSet || !gpsUsable()) {
         setParagliderNeutral();
@@ -396,42 +436,45 @@ void updateParagliderControl() {
         enterDescentStage(desiredStage);
     }
 
-    float turnSign = chooseTurnSignFromBearing(desiredBearing);
-
     switch (descentStage) {
         case DEPLOY_STABILIZE:
             setParagliderNeutral();
             break;
 
         case FAR_ACQUIRE: {
-            float turnCmd = dampedTurnCommand(turnSign,
-                                              BASE_TURN_FAR,
-                                              SYM_BRAKE_NONE,
-                                              GYRO_DAMP_GAIN_FAR);
-            applyBrakeAndTurn(SYM_BRAKE_NONE, turnCmd);
+            float vzTrim = verticalSymmetricBrakeDeltaDeg(paragliderDtSec);
+            float sym = clampf(SYM_BRAKE_NONE + vzTrim, 0.0f, SERVO_MAX_ANGLE - SERVO_CENTER);
+            float turnCmd = lateralTurnCommandDeg(desiredBearing,
+                                                  HEADING_KP_FAR,
+                                                  BASE_TURN_FAR,
+                                                  GYRO_DAMP_GAIN_FAR,
+                                                  maxTurn);
+            applyBrakeAndTurn(sym, turnCmd);
             break;
         }
 
         case MID_APPROACH: {
-            float turnCmd = dampedTurnCommand(turnSign,
-                                              BASE_TURN_MID,
-                                              SYM_BRAKE_NONE,
-                                              GYRO_DAMP_GAIN_MID);
-            applyBrakeAndTurn(SYM_BRAKE_NONE, turnCmd);
+            float vzTrim = verticalSymmetricBrakeDeltaDeg(paragliderDtSec);
+            float sym = clampf(SYM_BRAKE_NONE + vzTrim, 0.0f, SERVO_MAX_ANGLE - SERVO_CENTER);
+            float turnCmd = lateralTurnCommandDeg(desiredBearing,
+                                                  HEADING_KP_MID,
+                                                  BASE_TURN_MID,
+                                                  GYRO_DAMP_GAIN_MID,
+                                                  maxTurn);
+            applyBrakeAndTurn(sym, turnCmd);
             break;
         }
 
         case SPIRAL_ENERGY_MANAGEMENT: {
-            // Deliberate controlled spiral near target to burn altitude.
-            // Keep same turn direction while in this state.
-            float turnCmd = dampedTurnCommand(turnSign,
-                                              BASE_TURN_SPIRAL,
-                                              SYM_BRAKE_SPIRAL,
-                                              GYRO_DAMP_GAIN_MID);
+            float vzTrim = verticalSymmetricBrakeDeltaDeg(paragliderDtSec);
+            float sym = clampf(SYM_BRAKE_SPIRAL + vzTrim, 0.0f, SERVO_MAX_ANGLE - SERVO_CENTER);
+            float turnCmd = lateralTurnCommandDeg(desiredBearing,
+                                                  HEADING_KP_SPIRAL,
+                                                  BASE_TURN_SPIRAL,
+                                                  GYRO_DAMP_GAIN_MID,
+                                                  maxTurn);
+            applyBrakeAndTurn(sym, turnCmd);
 
-            applyBrakeAndTurn(SYM_BRAKE_SPIRAL, turnCmd);
-
-            // Safety escape if spiral lasts too long and drifted outward again
             if ((now - spiralEntryMs) > MAX_SPIRAL_TIME_MS && d_target > SPIRAL_DISTANCE_M) {
                 enterDescentStage(MID_APPROACH);
             }
@@ -439,11 +482,14 @@ void updateParagliderControl() {
         }
 
         case FINAL_APPROACH: {
-            float turnCmd = dampedTurnCommand(turnSign,
-                                              BASE_TURN_FINAL,
-                                              SYM_BRAKE_FINAL,
-                                              GYRO_DAMP_GAIN_FINAL);
-            applyBrakeAndTurn(SYM_BRAKE_FINAL, turnCmd);
+            float vzTrim = verticalSymmetricBrakeDeltaDeg(paragliderDtSec);
+            float sym = clampf(SYM_BRAKE_FINAL + vzTrim, 0.0f, SERVO_MAX_ANGLE - SERVO_CENTER);
+            float turnCmd = lateralTurnCommandDeg(desiredBearing,
+                                                  HEADING_KP_FINAL,
+                                                  BASE_TURN_FINAL,
+                                                  GYRO_DAMP_GAIN_FINAL,
+                                                  maxTurn);
+            applyBrakeAndTurn(sym, turnCmd);
             break;
         }
 

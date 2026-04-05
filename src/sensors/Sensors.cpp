@@ -32,6 +32,13 @@ static float gpsAltitude = 0.0f;
 static float gpsLatitude = 0.0f;
 static float gpsLongitude = 0.0f;
 static uint8_t gpsSatellites = 0;
+static float gpsCourseDeg = 0.0f;
+static float gpsGroundSpeedMps = 0.0f;
+static bool gpsCourseValid = false;
+static bool gpsSpeedValid = false;
+
+static float imuHeadingDeg = 0.0f;
+static bool bnoInitialized = false;
 
 // Simulation mode (required: F4-F6)
 static bool simulationModeEnabled = false;
@@ -82,8 +89,9 @@ void initSensors() {
 
     // Initialize BNO055 IMU
     if (!bno.begin()) {
-        // Leave gyro/accel at 0 on failure
+        bnoInitialized = false;
     } else {
+        bnoInitialized = true;
         // Use external crystal for better accuracy if available
         bno.setExtCrystalUse(true);
     }
@@ -186,6 +194,40 @@ float getVerticalVelocity() {
     return 0.0f;
 }
 
+static float wrapAngle360(float deg) {
+    while (deg >= 360.0f) deg -= 360.0f;
+    while (deg < 0.0f) deg += 360.0f;
+    return deg;
+}
+
+bool getHeadingReferenceDeg(float* outHeadingDeg, uint8_t* source) {
+    if (!outHeadingDeg || !source) {
+        return false;
+    }
+    *source = 0;
+
+    // Primary: GPS course-over-ground when moving fast enough for stable COG (typ. RMC).
+    // COG aligns steering with actual ground track toward the target (C8).
+    const float MIN_GROUND_SPEED_MPS = 1.2f;
+    if (!simulationModeActive && gpsCourseValid && gpsSpeedValid &&
+        gpsGroundSpeedMps >= MIN_GROUND_SPEED_MPS &&
+        getGPSSatellites() >= 4) {
+        *outHeadingDeg = wrapAngle360(gpsCourseDeg);
+        *source = 1;
+        return true;
+    }
+
+    // Fallback: BNO055 fusion heading when COG is stale or ground speed is too low.
+    // Not used in simulation (Euler not updated in that path). Mag/pendulum sensitive.
+    if (!simulationModeActive && bnoInitialized) {
+        *outHeadingDeg = wrapAngle360(imuHeadingDeg);
+        *source = 2;
+        return true;
+    }
+
+    return false;
+}
+
 void zeroAltitude() {
     // Calibrate altitude to zero at launch pad (required: G1, CAL command)
     // Store current altitude reading as offset and persist it (F8).
@@ -242,20 +284,26 @@ void updateSensors() {
         currentVoltage = busVoltage_V;
         currentCurrent = current_mA / 1000.0f;  // Convert mA to A
 
-        // --- BNO055: gyro and accelerometer ---
-        sensors_event_t accelEvent, gyroEvent;
+        // --- BNO055: gyro, accelerometer, Euler heading (for descent steering fallback) ---
+        sensors_event_t accelEvent, gyroEvent, orientEvent;
 
-        // Linear acceleration (m/s^2), gravity removed. Matches BNOO55_and_BMP390_test.ino.
-        bno.getEvent(&accelEvent, Adafruit_BNO055::VECTOR_LINEARACCEL);
-        currentAccelR = accelEvent.acceleration.x;
-        currentAccelP = accelEvent.acceleration.y;
-        currentAccelY = accelEvent.acceleration.z;
+        if (bnoInitialized) {
+            // Linear acceleration (m/s^2), gravity removed. Matches BNOO55_and_BMP390_test.ino.
+            bno.getEvent(&accelEvent, Adafruit_BNO055::VECTOR_LINEARACCEL);
+            currentAccelR = accelEvent.acceleration.x;
+            currentAccelP = accelEvent.acceleration.y;
+            currentAccelY = accelEvent.acceleration.z;
 
-        // Gyroscope (angular velocity). Library reports rad/s -> convert to deg/s for telemetry.
-        bno.getEvent(&gyroEvent, Adafruit_BNO055::VECTOR_GYROSCOPE);
-        currentGyroR = gyroEvent.gyro.x * DEG_PER_RAD;
-        currentGyroP = gyroEvent.gyro.y * DEG_PER_RAD;
-        currentGyroY = gyroEvent.gyro.z * DEG_PER_RAD;
+            // Gyroscope (angular velocity). Library reports rad/s -> convert to deg/s for telemetry.
+            bno.getEvent(&gyroEvent, Adafruit_BNO055::VECTOR_GYROSCOPE);
+            currentGyroR = gyroEvent.gyro.x * DEG_PER_RAD;
+            currentGyroP = gyroEvent.gyro.y * DEG_PER_RAD;
+            currentGyroY = gyroEvent.gyro.z * DEG_PER_RAD;
+
+            // Heading (degrees, 0–360). Axis mapping depends on PCB mount; tune sign in field.
+            bno.getEvent(&orientEvent, Adafruit_BNO055::VECTOR_EULER);
+            imuHeadingDeg = orientEvent.orientation.x;
+        }
 
         // --- GPS: parse NMEA sentences from GPS_SERIAL using TinyGPSPlus ---
         while (GPS_SERIAL.available() > 0) {
@@ -280,6 +328,15 @@ void updateSensors() {
             gpsHour   = (uint8_t)gpsParser.time.hour();
             gpsMinute = (uint8_t)gpsParser.time.minute();
             gpsSecond = (uint8_t)gpsParser.time.second();
+        }
+
+        gpsCourseValid = gpsParser.course.isValid();
+        if (gpsCourseValid) {
+            gpsCourseDeg = (float)gpsParser.course.deg();
+        }
+        gpsSpeedValid = gpsParser.speed.isValid();
+        if (gpsSpeedValid) {
+            gpsGroundSpeedMps = (float)gpsParser.speed.mps();
         }
     }
     

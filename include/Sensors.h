@@ -38,6 +38,10 @@ uint8_t getGPSSatellites();  // Number of GPS satellites tracked
 // Derived values
 float getVerticalVelocity();  // Vertical velocity in m/s
 
+// Paraglider guidance: best heading reference for steering (GPS COG preferred; IMU fallback).
+// On success sets *source: 1 = GPS course-over-ground, 2 = BNO055 Euler (heading).
+bool getHeadingReferenceDeg(float* outHeadingDeg, uint8_t* source);
+
 // Calibration (required: G1)
 void zeroAltitude();  // Calibrate altitude to zero at launch pad
 
