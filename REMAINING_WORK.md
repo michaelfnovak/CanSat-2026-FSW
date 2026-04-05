@@ -1,104 +1,40 @@
 # CanSat 2026 FSW – Remaining Work
 
-Areas where implementation is still needed (TODOs, placeholders, and incomplete logic).
+Substantive items still on you before competition or flight test—not stylistic nits.
 
 ---
 
-## 1. **main.cpp**
+## 1. Mission configuration (`main.cpp`)
 
-| Line | Area | What to do |
-|------|------|------------|
-| 18 | Team ID | Confirm `TEAM_ID = 1057` is your assigned team number. |
-| 44  | Target location | Confirm `setTargetLocation(38.375833, -79.607778)` matches your desired landing coordinates (or load from config/command). |
-
----
-
-## 2. **Sensors** (`include/Sensors.h`, `src/sensors/Sensors.cpp`)
-
-| Area | What to do |
-|------|------------|
-| **calculateCurrentHeading()** ~L121 | Return current heading (e.g. from GPS course or IMU yaw); replace “return 0” placeholder. |
-
-All required sensors (BMP390, INA219, BNO055, GPS) are initialized and used; simulated pressure and altitude and zero-alt persistence are implemented.
+| Item | Notes |
+|------|--------|
+| **Team ID** | `TEAM_ID` must match your assigned competition ID for commands and telemetry. |
+| **Landing target** | `setTargetLocation(lat, lon)` must match the intended landing coordinates (or load from a config path you add later). |
 
 ---
 
-## 3. **Timing** (`include/Timing.h`, `src/utils/Timing.cpp`)
+## 2. Hardware alignment
 
-| Area | What to do |
-|------|------------|
-| **updateTiming()** ~L146 | Optional: periodic GPS time sync, RTC sync, or health checks (not required for rules). |
-
-Mission time save/restore to EEPROM is implemented, and ST,GPS now sets mission time from GPS.
-
----
-
-## 4. **Telemetry** (`include/telemetry.h`, `src/telemetry/telemetry.cpp`)
-
-| Area | What to do |
-|------|------------|
-| **updateTelemetry()** ~L163 | Implement connection checks (e.g. XBee link status, time since last ACK) and update any “telemetry active” flags used for PRELAUNCH/LAUNCH_READY. |
-
-Packet count and mission-time persistence are implemented.
+| Item | Notes |
+|------|--------|
+| **Servo pins** | `SERVO_*_PIN` in `servos.cpp` must match Teensy 4.1 wiring. |
+| **Throws and limits** | Bench-test probe/payload open/close angles and paraglider `SERVO_MIN_ANGLE` / `SERVO_MAX_ANGLE` so the airframe cannot bind or over-travel. |
 
 ---
 
-## 5. **XBee / Comms** (`include/XBee.h`, `src/comms/XBee.cpp`)
+## 3. Flight test and tuning (`servos.cpp`)
 
-| Area | What to do |
-|------|------------|
-| **initXBee()** ~L9 | Configure Serial (or Serial1/2) for XBee, set baud, optionally configure NETID/PANID per team (X2). |
-| **xbeeSend()** ~L19 | Send `data[0..length-1]` over the XBee serial port (e.g. `Serial1.write(data, length)`). |
-| **xbeeReceive()** ~L24 | Non-blocking read: if bytes available, fill `buffer`, set `*length`, return true; else return false. |
-| **updateXBee()** ~L31 | Replace “mark ready after 1 s” placeholder with real link/status handling if needed. |
-
-Rules: XBee for telemetry (X1), 1 Hz transmit (X4), no broadcast (X3).
+| Item | Notes |
+|------|--------|
+| **Gains and thresholds** | Stage distances, altitudes, `HEADING_KP_*`, `GYRO_DAMP_*`, vertical-rate PI, and `MIN_STAGE_DWELL_MS` need validation under real glide (and possibly adjustment for fast altitude changes vs dwell). |
+| **Gyro damper sign** | Confirm `getGyroYaw()` sign vs the `- gyroDampGain * yawRate` term so yaw damping is stabilizing, not feeding back. |
 
 ---
 
-## 6. **Servos** (`include/servos.h`, `src/servos/servos.cpp`)
+## 4. EEPROM flight state vs mechanisms (only if you rely on state restore)
 
-| Area | What to do |
-|------|------------|
-| **Pin constants** ~L7 | Set `SERVO_PROBE_PIN`, `SERVO_PAYLOAD_PIN`, `SERVO_PARAGLIDER_1_PIN`, `SERVO_PARAGLIDER_2_PIN` to your Teensy 4.1 pins. |
-| **initServos()** ~L35 | Initialize PWM/servo library, set pins as output, move to safe/center positions. |
-| **resetServos()** ~L61 | Command probe, payload, and paraglider servos to initial/center positions. |
-| **releaseProbe()** ~L72 | Command probe-release servo to release at 80% altitude. |
-| **releasePayload()** ~L82 | Command payload (egg) release servo at ~2 m altitude. |
-| **calculateCurrentHeading()** ~L123 | Return current heading (e.g. from GPS course or IMU yaw); replace “return 0” placeholder. |
-| **angleToPWM()** ~L150, L157 | Implement conversion from angle (0–180°) to your PWM (pulse width or analogWrite range) for your servos. |
-| **Pitch/roll (optional)** ~L224 | Optionally use accel/IMU to drive servo 2 for pitch/roll during paraglider. |
-| **PWM output** ~L236 | In `updateParagliderControl()`, call your PWM/servo API with `servo1Position` and `servo2Position` (e.g. via `angleToPWM()`). |
-
-Paraglider logic (bearing to target, heading error, 10 Hz updates) is in place; it only needs real heading and PWM/servo output.
+If `flightState` is restored from EEPROM after a reset **mid-mission**, RAM flags such as `probeReleased` / `payloadReleased` are reinitialized in `initServos()` and can disagree with the airframe. Define a team policy: e.g. clear EEPROM for a fresh mission, or add an explicit sync after `initFlightState()` so software state matches assumed hardware state.
 
 ---
 
-## 7. **Commands** (`include/Commands.h`, `src/commands/Commands.cpp`)
-
-| Area | What to do |
-|------|------------|
-| **MEC commands** ~L118 | Expand device mapping further only if you add new mechanisms; current mapping covers PROBE, PAYLOAD, FS1, FS2. |
-
-CX, ST (including ST,GPS), SIM, SIMP, CAL, MEC parsing and behavior are implemented; XBee ingestion is wired via xbeeReceive.
-
----
-
-## 8. **Summary by priority**
-
-**Critical (needed for flight):**
-- Sensors: all hardware init and reads (pressure, temp, voltage, current, IMU, GPS).
-- XBee: init, send, receive, and integration with command processing.
-- Servos: pin assignment, PWM/servo init, probe/payload release, paraglider PWM output and (if used) heading source.
-
-**Important (rules / robustness):**
-- Timing: optional `updateTiming()` enhancements if desired.
-
-**Optional / tuning:**
-- Paraglider: real heading (GPS/IMU), pitch/roll on servo 2, gains (STEERING_GAIN, MAX_SERVO_DEFLECTION).
-- Telemetry: link status in `updateTelemetry()`.
-- Timing: optional periodic time sync in `updateTiming()`.
-
----
-
-*Generated from codebase TODOs and placeholders. Update this file as you complete items.*
+*Update this file when a category is fully verified in hardware or competition.*

@@ -1,3 +1,5 @@
+// Flight regime transitions (FlightState). Mechanism timing and paraglider guidance
+// live in servos.cpp (updateServos / updateParagliderControl).
 #include "StateLogic.h"
 #include "FlightState.h"
 #include "Sensors.h"
@@ -8,7 +10,7 @@
 #include <math.h>
 #include <stdint.h>
 
-static float maxAltitude = 0.0f; //starts at 0 but gets updated for comparison 
+static float maxAltitude = 0.0f;  // Peak altitude this flight (for % descent threshold)
 static bool apogeeLatched = false;
 static bool camera1Started = false;
 static bool camera2Started = false;
@@ -96,7 +98,7 @@ void updateFlightState(uint32_t now_ms) {
         break;
 
     case LANDED:
-        // Stop cameras once we confirm landing (low vertical velocity).
+        // Landing was detected in PAYLOAD_RELEASE (near-zero vertical velocity).
         if (camera1Started) {
             stopCamera1Recording();
             camera1Started = false;

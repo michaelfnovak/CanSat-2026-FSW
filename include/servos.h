@@ -1,29 +1,31 @@
 #ifndef SERVOS_H
 #define SERVOS_H
 
-// Initialize servo control system
+// Attach pins, center flight surfaces, close probe/payload; clear release flags
+// and descent-controller state. Call before or with flight init; follow with
+// setTargetLocation if using autonomous glide.
 void initServos();
 
-// Reset servos to default/initial position (called when entering LAUNCH_PAD)
+// LAUNCH_PAD (StateLogic): center surfaces, close mechanisms, reset descent state.
+// Keeps landing target from setTargetLocation so guidance stays enabled.
 void resetServos();
 
-// Probe hatch (Servo 3) and egg release (Servo 4) — called from updateServos()
-// when flight state is PROBE_RELEASE / PAYLOAD_RELEASE (state is set in StateLogic;
-// main loop calls updateServos() which runs these).
+// Idempotent releases (also used by MEC). State machine drives them via updateServos().
 void releaseProbe();
 void releasePayload();
 
-// MEC command test control of flight-surface servos (FS1, FS2)
+// MEC: bench test flight surfaces (angles 0° / 90°, not the flight clamp range).
 void setFlightSurface1Test(bool active);
 void setFlightSurface2Test(bool active);
 
-// Paraglider steering during PROBE_RELEASE — skeleton only; extend for real control
+// Staged paraglider control (GPS bearing, heading ref, baro vertical rate).
+// Intended caller: updateServos() in PROBE_RELEASE at PARAGLIDER_UPDATE_HZ.
 void updateParagliderControl();
 
-// Target for paraglider navigation (used when you implement updateParagliderControl)
+// Landing waypoint (decimal degrees). Required for autonomous glide when GPS is valid.
 void setTargetLocation(float targetLat, float targetLon);
 
-// Called every main loop iteration; runs releaseProbe/releasePayload and paraglider logic by state
+// PROBE_RELEASE / PAYLOAD_RELEASE behavior; no-op for other FlightState values.
 void updateServos();
 
 #endif // SERVOS_H

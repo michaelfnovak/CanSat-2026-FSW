@@ -1,9 +1,13 @@
+// Servos: probe hatch (3), egg release (4), flight surfaces (1, 2).
+//
+// FlightState (StateLogic) selects the regime; main calls updateServos() after
+// updateFlightState(). PROBE_RELEASE: open probe once, then run staged paraglider
+// descent (internal DescentStage) at PARAGLIDER_UPDATE_HZ with GPS + baro + heading
+// from Sensors (getHeadingReferenceDeg). PAYLOAD_RELEASE: egg release + neutral
+// surfaces. MEC commands may call releaseProbe/releasePayload or FS test helpers.
+// setTargetLocation (e.g. from setup) sets the landing waypoint; resetServos()
+// does not clear it so LAUNCH_PAD still has a valid target.
 
- //Servos: probe hatch (3), egg release (4), flight surfaces (1, 2).
- //StateLogic sets flightState (e.g. PROBE_RELEASE, PAYLOAD_RELEASE). Main loop
- //calls updateServos(); it switches on flightState and calls releaseProbe(),
- //releasePayload(), and updateParagliderControl() as appropriate.
- 
 #include "servos.h"
 #include "FlightState.h"
 #include "Sensors.h"
@@ -86,7 +90,7 @@ static const float SYM_BRAKE_RELEASE     = 2.0f;
 // Spiral mode
 static const uint32_t MAX_SPIRAL_TIME_MS = 6000;
 
-// Landing detection using only current interface
+// Internal paraglider stage: baro vz near zero and low AGL (see getVerticalVelocity)
 static const float LANDED_ALT_M          = 1.0f;
 static const float LANDED_VZ_MPS         = 0.3f;
 
@@ -211,7 +215,7 @@ static void enterDescentStage(DescentStage nextStage) {
 }
 
 // ================= SENSOR WRAPPERS =================
-// Uses only currently available interface.
+// Thin wrappers around Sensors.h for paraglider logic.
 
 static bool gpsUsable() {
     return getGPSSatellites() >= (uint8_t)MIN_VALID_SATS;
@@ -333,6 +337,7 @@ static DescentStage determineDescentStage(float h_agl, float d_target, uint32_t 
 
 // ================= PUBLIC FUNCTIONS =================
 
+// Clears targetSet until setTargetLocation() (e.g. end of setup() in main).
 void initServos() {
     servoProbe.attach(SERVO_PROBE_PIN);
     servoPayload.attach(SERVO_PAYLOAD_PIN);
@@ -369,7 +374,8 @@ void resetServos() {
 
     probeReleased = false;
     payloadReleased = false;
-    targetSet = false;
+    // Keep targetSet / target lat-lon: set once in setup (or commands); LAUNCH_PAD
+    // reset must not disable paraglider navigation for the real flight.
 
     descentStage = DEPLOY_STABILIZE;
     stageEntryMs = millis();
