@@ -1,0 +1,136 @@
+# GCS ↔ Flight Software Integration Summary
+
+This document summarizes what the **UVA CavSat Ground Control Station (GCS)** expects on the wire. Use it to cross-check the radio protocol. **Authoritative FSW-side reference:** `GCS_AGENT_INTEGRATION.md` in the FSW repo (generated from firmware).
+
+Canonical Python definitions live in `gcs_core.py` and `gcs_serial.py`.
+
+---
+
+## Team ID
+
+- **TEAM_ID = `1057`** (four digits, string match in `gcs_core.py`).
+- Telemetry lines whose first CSV field is not `1057` are **discarded** by the GCS.
+- Commands sent by the GCS use this same ID: `CMD,1057,...`
+
+---
+
+## Physical / serial link
+
+- The GCS talks to the radio via a **USB serial COM port** (pyserial).
+- **Baud rate** is user-selectable in the GUI (**9600**, 57600, or 115200). Default in the UI is **9600** — **FSW and XBee UART must match** the selected baud. (Current FSW: Teensy `Serial2` / XBee at **9600** in `XBee.cpp`.)
+- The GCS **splits inbound data only on `\r\n` (CRLF)**. Partial lines are buffered until a full CRLF-terminated frame is received (`gcs_serial.py`).
+
+---
+
+## Telemetry (FSW → GCS)
+
+### Framing
+
+- One logical packet = **one ASCII line**, fields separated by **commas**, terminated by **`\r\n`** (CRLF).
+- Do not embed commas inside field values (competition rule).
+
+### Minimum field count
+
+- At least **22** comma-separated fields before any optional trailing fields (see `TELEMETRY_MIN_FIELDS` in `gcs_core.py`).
+
+### Field order (columns 1–22)
+
+| Index | Name           | Notes |
+|------:|----------------|--------|
+| 0 | TEAM_ID | Must be `1057` |
+| 1 | MISSION_TIME | e.g. `hh:mm:ss` |
+| 2 | PACKET_COUNT | Integer; used for **lost-packet estimate** at GCS |
+| 3 | MODE | `F` flight / `S` simulation |
+| 4 | STATE | e.g. `LAUNCH_PAD`, `ASCENT`, … |
+| 5 | ALTITUDE | |
+| 6 | TEMPERATURE | |
+| 7 | PRESSURE | |
+| 8 | VOLTAGE | |
+| 9 | CURRENT | |
+| 10–12 | GYRO_R, GYRO_P, GYRO_Y | |
+| 13–15 | ACCEL_R, ACCEL_P, ACCEL_Y | |
+| 16 | GPS_TIME | |
+| 17 | GPS_ALTITUDE | |
+| 18 | GPS_LATITUDE | |
+| 19 | GPS_LONGITUDE | |
+| 20 | GPS_SATS | |
+| 21 | CMD_ECHO | Last processed command text (no commas); FSW buffer max 32 bytes |
+
+**STATE:** FSW sends `UNKNOWN` for enum `PRELAUNCH` (there is no `PRELAUNCH` string in `flightStateToString`).
+
+### Optional trailing fields
+
+- The GCS may support extra columns after field 21; **current FSW sends exactly 22 fields** (no optional trailing data).
+
+### Packet counter and “lost” packets
+
+- GCS increments **received** count for each accepted line.
+- **Lost** count is estimated from **gaps in `PACKET_COUNT`** between successive packets (assumes monotonic counter). Reset behavior on FSW should be understood if you rely on this number.
+
+---
+
+## Commands (GCS → FSW)
+
+### Framing
+
+- All commands are **8-bit ASCII**, terminated by **`\r\n` (CRLF)**.
+- The manual command box strips user line endings and **always appends `\r\n`**.
+
+### Forms the GCS generates (must match FSW parser)
+
+| Command | Bytes sent (conceptually) |
+|---------|---------------------------|
+| Telemetry on/off | `CMD,1057,CX,ON\r\n` or `CMD,1057,CX,OFF\r\n` |
+| Set time | `CMD,1057,ST,<UTC_TIME or GPS>\r\n` |
+| Simulation | `CMD,1057,SIM,ENABLE\r\n` / `ACTIVATE` / `DISABLE` |
+| Simulated pressure | `CMD,1057,SIMP,<pressure_pa>\r\n` (integer Pa) |
+| Calibrate altitude | `CMD,1057,CAL,\r\n` — **note trailing comma after `CAL`** (empty last field) |
+| Mechanism | `CMD,1057,MEC,<DEVICE>,<ON|OFF>\r\n` |
+
+`CAL` uses an extra comma because the current FSW parser expects a comma after the `CAL` token.
+
+---
+
+## Simulation mode (competition sequence)
+
+1. FSW must require **both** `SIM,ENABLE` and `SIM,ACTIVATE` before using uplink pressure as truth (per competition guide).
+2. After active, GCS can stream **`SIMP`** at **1 Hz** from a profile file (`SimMode.py` + `gcs_core.iter_simp_pressures_from_profile`).
+3. Profile lines look like `CMD,$,SIMP,93948` with `$` replaced by team ID; or a CSV with a `pressure` column (Pa).
+
+---
+
+## CSV export (GCS side)
+
+- Saved as **`Flight_1057.csv`** (naming pattern `Flight_<TEAM_ID>.csv`).
+- Header matches the telemetry columns plus optional fields.
+
+---
+
+## Integration checklist for FSW
+
+1. **Telemetry** ends each packet with **`\r\n`**.
+2. First field is **`1057`**.
+3. Send at least **22** fields per line; **`CMD_ECHO`** reflects the last handled command (no commas).
+4. **`PACKET_COUNT`** increments predictably if you care about GCS “lost” estimate.
+5. **Commands** are parsed as **`CMD,1057,...`** with **CRLF** terminator.
+6. **`CMD,1057,CAL,`** (with trailing comma) is accepted from GCS for calibrate.
+7. **Baud** matches XBee/UART and what the operator selects in the GCS.
+
+---
+
+## Code map (GCS repository)
+
+| Topic | File |
+|--------|------|
+| TEAM_ID, telemetry parse, command builders, SIMP profile | `gcs_core.py` |
+| Serial port, CRLF line reader thread | `gcs_serial.py` |
+| Connect / commands / sim playback UI wiring | `gcs_serial_controls.py` |
+| Telemetry → widgets + CSV dialog | `gcs_ui_updates.py` |
+| Row storage + CSV write | `gcs_telemetry_store.py` |
+| Main window | `CavSatGUI.py` |
+
+---
+
+## Reference
+
+- Competition telemetry and command definitions: `rules.txt` (sections 3.1.1–3.1.3).

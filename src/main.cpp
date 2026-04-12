@@ -42,7 +42,8 @@ void setup() {
     initFlightState();
     
     // Set target GPS coordinates for paraglider navigation (landing target)
-    setTargetLocation(38.375833f, -79.607778f);
+    // 38°22'33.66"N, 79°36'28.34"W
+    setTargetLocation(38.375961f, -79.607872f);
     
     Serial.println("CanSat Flight Software Initialized");
     Serial.print("Team ID: ");
