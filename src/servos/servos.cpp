@@ -364,6 +364,30 @@ void initServos() {
     vzIntegral = 0.0f;
 }
 
+void updateServos() {
+    switch (flightState) {
+        case PROBE_RELEASE:
+            releaseProbe();
+            {
+                uint32_t now = millis();
+                if (now - lastParagliderUpdate >= (uint32_t)(1000.0f / PARAGLIDER_UPDATE_HZ)) {
+                    updateParagliderControl();
+                    lastParagliderUpdate = now;
+                }
+            }
+            break;
+        case PAYLOAD_RELEASE:
+            releasePayload();
+            servo1Position = SERVO_CENTER;
+            servo2Position = SERVO_CENTER;
+            servoParaglider1.write((int)servo1Position);
+            servoParaglider2.write((int)servo2Position);
+            break;
+        default:
+            break;
+    }
+}
+
 void resetServos() {
     servo1Position = SERVO_CENTER;
     servo2Position = SERVO_CENTER;
@@ -543,3 +567,4 @@ void updateServos() {
             break;
     }
 }
+
