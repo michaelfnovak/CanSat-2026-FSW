@@ -1,6 +1,9 @@
 #ifndef XBEE_H
 #define XBEE_H
 
+#include <stddef.h>
+#include <stdint.h>
+
 // Initialize XBee communication module
 void initXBee();
 

@@ -10,6 +10,8 @@
 #include <EEPROM.h>
 
 static uint16_t teamID = 0;
+static bool simulationEnabled = false;
+static bool simulationActive = false;
 
 // EEPROM addresses for simulation mode configuration state
 // Reserve addresses 50-51 for simulationEnabled and simulationActive flags.
@@ -86,9 +88,6 @@ bool processSTCommand(const char* timeStr) {
     
     return false;
 }
-
-static bool simulationEnabled = false;
-static bool simulationActive = false;
 
 bool processSIMCommand(const char* action) {
     // SIM - Simulation Mode: CMD,<TEAM_ID>,SIM,ENABLE|ACTIVATE|DISABLE
