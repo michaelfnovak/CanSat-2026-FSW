@@ -17,11 +17,12 @@
 
 // ================= PINS =================
 
-// Pins (Teensy 4.1; adjust to match wiring)
-const int SERVO_PROBE_PIN        = 2;  // Servo 3: probe release hatch
-const int SERVO_PAYLOAD_PIN      = 3;  // Servo 4: egg release
-const int SERVO_PARAGLIDER_1_PIN = 4;  // Servo 1: left flight surface
-const int SERVO_PARAGLIDER_2_PIN = 5;  // Servo 2: right flight surface
+// PCB nets (Teensy 4.1 digital pins per PJRC alt names on pins 2–5):
+//   OUT1D   → probe hatch    | LRCLK2 → paraglider L | BCLK2 → paraglider R | OUT2 → egg
+const int SERVO_PROBE_PIN        = 2;  // net OUT1D — probe release hatch (mech "servo 3")
+const int SERVO_PARAGLIDER_1_PIN = 3;  // net LRCLK2 — left flight surface (servo 1)
+const int SERVO_PARAGLIDER_2_PIN = 4;  // net BCLK2 — right flight surface (servo 2)
+const int SERVO_PAYLOAD_PIN      = 5;  // net OUT2 — egg / payload release (servo 4)
 
 // ================= SERVO LIMITS =================
 

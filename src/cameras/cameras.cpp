@@ -2,15 +2,14 @@
 #include <Arduino.h>
 
 // Two ESP32-CAM modules with OV2640, controlled over UART.
-// Teensy 4.1:
-//  - Camera 1 on Serial3
-//  - Camera 2 on Serial4
+// Teensy 4.1: ground camera Serial2 (RX2/TX2), top camera Serial3 (RX3/TX3).
+// StateLogic: camera1 at apogee, camera2 at payload release.
 // ESP32-CAM sketch listens on its Serial and reacts to:
 //  - "START\n" to begin writing frames to SD
 //  - "STOP\n" to stop recording
 
-static HardwareSerial& CAM1_SERIAL = Serial3;
-static HardwareSerial& CAM2_SERIAL = Serial4;
+static HardwareSerial& CAM1_SERIAL = Serial2;  // ground
+static HardwareSerial& CAM2_SERIAL = Serial3;  // top
 
 static bool camerasInitialized = false;
 static bool camera1Recording = false;
