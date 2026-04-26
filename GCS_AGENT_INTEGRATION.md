@@ -11,7 +11,7 @@ This document is produced from the **flight software (FSW)** repository for the 
 | Item | FSW behavior |
 |------|----------------|
 | **Path** | Teensy 4.1 ↔ UART ↔ XBee (transparent serial). GCS typically uses USB ↔ XBee on the ground. |
-| **UART** | XBee uses **`Serial4`** (RX4/TX4) on the Teensy at **`9600` baud** (`XBEE_BAUD` in `src/comms/XBee.cpp`). |
+| **UART** | XBee uses **`Serial5`** (RX5/TX5) on the Teensy at **`9600` baud** (`XBEE_BAUD` in `src/comms/XBee.cpp`). |
 | **GCS baud** | Must match **9600** unless you reflash/reconfigure both ends to the same rate. |
 | **Line ending** | **Inbound (GCS → FSW):** lines are assembled on `\r` or `\n` (`XBee.cpp`); typical use is **`CRLF` (`\r\n`)**. **Outbound (FSW → GCS):** each telemetry line ends with **`\r\n`**. |
 

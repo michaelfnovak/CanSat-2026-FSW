@@ -17,7 +17,7 @@ Canonical Python definitions live in `gcs_core.py` and `gcs_serial.py`.
 ## Physical / serial link
 
 - The GCS talks to the radio via a **USB serial COM port** (pyserial).
-- **Baud rate** is user-selectable in the GUI (**9600**, 57600, or 115200). Default in the UI is **9600** — **FSW and XBee UART must match** the selected baud. (Current FSW: Teensy `Serial4` / XBee at **9600** in `XBee.cpp`.)
+- **Baud rate** is user-selectable in the GUI (**9600**, 57600, or 115200). Default in the UI is **9600** — **FSW and XBee UART must match** the selected baud. (Current FSW: Teensy `Serial5` / XBee at **9600** in `XBee.cpp`.)
 - The GCS **splits inbound data only on `\r\n` (CRLF)**. Partial lines are buffered until a full CRLF-terminated frame is received (`gcs_serial.py`).
 
 ---

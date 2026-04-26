@@ -1,7 +1,7 @@
 /**
  * XBee communication for CanSat 2026.
  * Hardware: XBee-Pro XSC 900 MHz (wire antenna on CanSat), SparkFun XBee Explorer Regulated.
- * Teensy 4.1: UART4 (Serial4, RX4/TX4). Serial1 = GPS; Serial2/3 = cameras.
+ * Teensy 4.1: UART5 (Serial5, RX5/TX5). Serial1 = GPS; Serial2/3 = cameras.
  * Transparent serial mode: bytes sent are transmitted over the air to the other XBee.
  */
 #include "XBee.h"
@@ -10,7 +10,7 @@
 #include <string.h>
 #include <Arduino.h>
 
-#define XBEE_SERIAL Serial4
+#define XBEE_SERIAL Serial5
 
 // XBee-Pro XSC 900 MHz default baud is 9600. Change if your radios are configured differently.
 #define XBEE_BAUD 9600

@@ -170,6 +170,6 @@ void restoreMissionTime() {
 }
 
 void updateTiming() {
-    // TODO: Update timing system
-    // Check for GPS time updates, etc.
+    // Timing currently derives mission time from millis() + offset; no periodic
+    // maintenance step is required here.
 }

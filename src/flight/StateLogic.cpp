@@ -18,6 +18,7 @@ static bool launchPadInitialized = false;
 static float launchPadAltitude = 0.0f;
 
 void updateFlightState(uint32_t now_ms) {
+    (void)now_ms;
 
     float alt = getAltitude();
     float vel = getVerticalVelocity();
@@ -37,6 +38,9 @@ void updateFlightState(uint32_t now_ms) {
         if (!launchPadInitialized) {
             zeroAltitude();
             resetServos();
+            // Reset profile-tracking state for a clean flight.
+            maxAltitude = 0.0f;
+            apogeeLatched = false;
             // Reset camera state in case of re-flight or reset before launch
             camera1Started = false;
             camera2Started = false;
@@ -83,12 +87,6 @@ void updateFlightState(uint32_t now_ms) {
         if (alt <= 2.0f) {
             setFlightState(PAYLOAD_RELEASE);
         }
-        //starts camera 2 recording at probe release
-        if (!camera2Started) {
-            startCamera2Recording();
-            camera2Started = true;
-        }
-
         break;
         
 
@@ -96,6 +94,12 @@ void updateFlightState(uint32_t now_ms) {
         if (fabs(vel) < 0.05f) {
             setFlightState(LANDED);
         }
+        // Start camera 2 at payload release so egg drop/touchdown are captured.
+        if (!camera2Started) {
+            startCamera2Recording();
+            camera2Started = true;
+        }
+        break;
 
         
 

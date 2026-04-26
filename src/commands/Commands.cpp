@@ -21,8 +21,8 @@ const int EEPROM_SIM_ACTIVE_ADDR  = 51;
 void initCommands() {
     // Command buffer and line assembly are in XBee (xbeeReceive returns one line per call).
     // Parser state is stateless: parseCommand() handles each line.
-    // Team ID must be set by main via setTeamID() after init.
-    teamID = 0;
+    // Team ID is set by main via setTeamID(). Do not clear it here; setup currently
+    // calls setTeamID() before initCommands().
 
     // Restore simulation configuration state (F8) so resets in simulation mode are handled.
     bool storedSimEnabled = (EEPROM.read(EEPROM_SIM_ENABLED_ADDR) == 1);
@@ -256,7 +256,7 @@ bool parseCommand(const char* cmdString) {
 }
 
 void processCommands() {
-    // TODO: Read from XBee and process commands
+    // Read one complete command line from XBee (if available) and parse it.
     uint8_t buffer[256];
     size_t length = 256;
     
