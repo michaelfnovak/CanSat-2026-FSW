@@ -61,14 +61,15 @@ This document is produced from the **flight software (FSW)** repository for the 
 
 | String | Meaning |
 |--------|--------|
-| `LAUNCH_PAD` | On pad (after conditions in §3) |
+| `PRELAUNCH` | Waiting for CX,ON + ST before pad ops |
+| `LAUNCH_PAD` | On pad, ready to launch |
 | `ASCENT` | Ascending |
 | `APOGEE` | Transient; may appear rarely (logic often advances same tick) |
-| `DESCENT` | Descent before probe release |
+| `DESCENT` | Descending before probe release |
 | `PROBE_RELEASE` | Probe-release regime |
 | `PAYLOAD_RELEASE` | Payload-release regime |
 | `LANDED` | Landed |
-| **`UNKNOWN`** | **Enum `PRELAUNCH`** — there is no separate `PRELAUNCH` string in telemetry |
+| `UNKNOWN` | Invalid enum value (should not appear in normal operation) |
 
 ### 2.5 PACKET_COUNT behavior
 
@@ -127,7 +128,7 @@ This document is produced from the **flight software (FSW)** repository for the 
 3. **Accept TEAM_ID `1057`** (or don’t hard-reject if you multi-team later).
 4. **Send commands with `CMD,1057,...`** and **CRLF**.
 5. **CAL:** use **`CMD,1057,CAL,`** (comma after `CAL`).
-6. **Show STATE `UNKNOWN` as PRELAUNCH** if you want human-friendly labels.
+6. **STATE `PRELAUNCH`** is now the explicit string for the pre-pad phase (no longer `UNKNOWN`).
 7. **Lost-packet estimates:** `PACKET_COUNT` can jump after power cycle (EEPROM); **`CAL`** resets it.
 
 ---

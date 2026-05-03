@@ -30,6 +30,7 @@ void setFlightState(FlightState state) {
 // Convert flight state to ASCII string for telemetry (as required by rules)
 const char* flightStateToString(FlightState state) {
     switch (state) {
+        case PRELAUNCH:       return "PRELAUNCH";
         case LAUNCH_PAD:      return "LAUNCH_PAD";
         case ASCENT:          return "ASCENT";
         case APOGEE:          return "APOGEE";

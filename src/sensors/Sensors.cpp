@@ -57,6 +57,7 @@ static bool bmpInitialized = false;
 
 // INA219 current/voltage sensor (I2C). Default address 0x40.
 static Adafruit_INA219 ina219;
+static bool ina219Initialized = false;
 
 // BNO055 IMU (I2C). Common address is 0x28; change to 0x29 if your board is configured that way.
 static Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
@@ -83,8 +84,10 @@ void initSensors() {
     }
 
     // Initialize INA219 current/voltage monitor
-    if (!ina219.begin()) {
-        // Leave voltage/current at 0 on failure
+    ina219Initialized = ina219.begin();
+    if (ina219Initialized) {
+        // Default calibration covers 32V / 2A range (adequate for 3.3–5V systems).
+        // Call ina219.setCalibration_16V_400mA() here if your shunt is sized for it.
     }
 
     // Initialize BNO055 IMU
@@ -278,11 +281,14 @@ void updateSensors() {
         }
 
         // --- INA219: battery voltage and current ---
-        // Bus voltage in volts and current in milliamps
-        float busVoltage_V = ina219.getBusVoltage_V();
-        float current_mA = ina219.getCurrent_mA();
-        currentVoltage = busVoltage_V;
-        currentCurrent = current_mA / 1000.0f;  // Convert mA to A
+        if (ina219Initialized) {
+            float busVoltage_V = ina219.getBusVoltage_V();
+            float current_mA   = ina219.getCurrent_mA();
+            // getCurrent_mA() returns NaN when the calibration register is not yet
+            // written or if an I2C read glitch occurs. Guard before storing.
+            currentVoltage = isfinite(busVoltage_V) ? busVoltage_V : 0.0f;
+            currentCurrent = isfinite(current_mA)   ? current_mA / 1000.0f : 0.0f;
+        }
 
         // --- BNO055: gyro, accelerometer, Euler heading (for descent steering fallback) ---
         sensors_event_t accelEvent, gyroEvent, orientEvent;

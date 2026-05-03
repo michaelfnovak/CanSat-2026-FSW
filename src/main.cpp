@@ -34,12 +34,19 @@ void setup() {
     initServos();
     initCameras();
     initCommands();
+    // Re-assert team ID after initCommands() to avoid any ordering/regression issues.
+    setTeamID(TEAM_ID);
     
     // Restore mission time from persistent storage (required: F2)
     // Note: restoreMissionTime() is called in initTiming()
     
     // Initialize flight state from non-volatile storage
     initFlightState();
+    // Bench-safety: always start from PRELAUNCH on fresh boot so stale EEPROM
+    // state cannot unexpectedly fire mechanism servos.
+    if (flightState != PRELAUNCH) {
+        setFlightState(PRELAUNCH);
+    }
     
     // Set target GPS coordinates for paraglider navigation (landing target)
     // 38°22'33.66"N, 79°36'28.34"W
