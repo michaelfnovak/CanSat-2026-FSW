@@ -109,9 +109,9 @@ void initSensors() {
         bno.setExtCrystalUse(true);
     }
 
-    // Initialize GPS UART (TinyGPSPlus parser in updateSensors)
-    // BrainFPV GPS at 4800 baud to reduce UART frame errors (see gps_tester.ino).
-    GPS_SERIAL.begin(4800);
+    // Initialize GPS UART (TinyGPSPlus parser in updateSensors).
+    // Most GPS modules default to 9600 baud. Change if your module differs.
+    GPS_SERIAL.begin(9600);
     
     // Restore altitude calibration (zero-altitude offset) from EEPROM (F8)
     if (EEPROM.read(EEPROM_ALT_CAL_FLAG_ADDR) == 1) {
@@ -291,13 +291,14 @@ void updateSensors() {
         }
 
         // --- INA219: battery voltage and current ---
-        // Read unconditionally (mirrors working test sketch). isfinite() guards
-        // prevent NaN/Inf from reaching telemetry if a read glitch occurs.
+        // Reads are unconditional. On a glitch the library can return NaN; we keep
+        // the last known-good value rather than dropping to 0.0, which removes the
+        // 0.0 / 4.1 flicker seen when the I2C bus has momentary noise.
         {
             float busVoltage_V = ina219.getBusVoltage_V();
             float current_mA   = ina219.getCurrent_mA();
-            currentVoltage = isfinite(busVoltage_V) ? busVoltage_V : 0.0f;
-            currentCurrent = isfinite(current_mA)   ? current_mA / 1000.0f : 0.0f;
+            if (isfinite(busVoltage_V)) currentVoltage = busVoltage_V;
+            if (isfinite(current_mA))   currentCurrent = current_mA / 1000.0f;
         }
 
         // --- BNO055: gyro, accelerometer, Euler heading (for descent steering fallback) ---

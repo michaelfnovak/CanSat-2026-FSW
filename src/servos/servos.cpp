@@ -36,8 +36,8 @@ const float PAYLOAD_CLOSED_ANGLE  = 0.0f;
 const float PAYLOAD_RELEASE_ANGLE = 90.0f;
 
 // MEC nudge: how far to move probe/payload servos during a ground test command.
-// Small enough to confirm the servo is alive without straining the battery.
-const float MEC_NUDGE_DEG = 10.0f;
+// 45° is clearly visible while staying well below the full 90° release stroke.
+const float MEC_NUDGE_DEG = 45.0f;
 
 // ================= UPDATE RATE =================
 
