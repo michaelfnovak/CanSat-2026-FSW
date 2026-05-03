@@ -159,15 +159,20 @@ void sendTelemetry() {
     lastSuccessfulSendMs = millis();
     incrementPacketCount();
 
-    // USB Serial debug: echo telemetry + latest raw NMEA sentence so GPS issues are visible
-    // in the Serial Monitor even without a GCS attached.
-    Serial.print(buffer);
-    Serial.print("[GPS_RAW] ");
-    const char* nmea = getLastNMEASentence();
-    if (nmea[0] != '\0') {
-        Serial.println(nmea);
-    } else {
-        Serial.println("(no NMEA received)");
+    // Debug: send raw NMEA sentence over XBee (and USB Serial) so GPS status is visible
+    // on the GCS. Prefixed with [GPS_RAW] so the GCS can filter it from normal packets.
+    // Remove this block once GPS is confirmed working.
+    {
+        const char* nmea = getLastNMEASentence();
+        char gpsDebug[160];
+        if (nmea[0] != '\0') {
+            snprintf(gpsDebug, sizeof(gpsDebug), "[GPS_RAW] %s\r\n", nmea);
+        } else {
+            snprintf(gpsDebug, sizeof(gpsDebug), "[GPS_RAW] (no NMEA received)\r\n");
+        }
+        xbeeSend((const uint8_t*)gpsDebug, strlen(gpsDebug));
+        Serial.print(buffer);
+        Serial.print(gpsDebug);
     }
 }
 
