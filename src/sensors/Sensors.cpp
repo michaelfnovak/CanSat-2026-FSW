@@ -83,12 +83,17 @@ void initSensors() {
         bmpInitialized = false;
     }
 
-    // Initialize INA219 current/voltage monitor
+    // Brief delay so the I2C bus is idle before the next device init.
+    // bmp.begin_I2C() leaves the bus active; without a pause ina219.begin()
+    // can miss its ACK and return false even when the hardware is present.
+    delay(10);
+
+    // Initialize INA219 current/voltage monitor.
+    // begin() writes the calibration register (32V/2A default).
+    // Reads are attempted unconditionally regardless of the return value so
+    // behaviour matches the standalone test sketch; isfinite() guards below
+    // prevent bad values reaching telemetry.
     ina219Initialized = ina219.begin();
-    if (ina219Initialized) {
-        // Default calibration covers 32V / 2A range (adequate for 3.3–5V systems).
-        // Call ina219.setCalibration_16V_400mA() here if your shunt is sized for it.
-    }
 
     // Initialize BNO055 IMU
     if (!bno.begin()) {
@@ -281,11 +286,11 @@ void updateSensors() {
         }
 
         // --- INA219: battery voltage and current ---
-        if (ina219Initialized) {
+        // Read unconditionally (mirrors working test sketch). isfinite() guards
+        // prevent NaN/Inf from reaching telemetry if a read glitch occurs.
+        {
             float busVoltage_V = ina219.getBusVoltage_V();
             float current_mA   = ina219.getCurrent_mA();
-            // getCurrent_mA() returns NaN when the calibration register is not yet
-            // written or if an I2C read glitch occurs. Guard before storing.
             currentVoltage = isfinite(busVoltage_V) ? busVoltage_V : 0.0f;
             currentCurrent = isfinite(current_mA)   ? current_mA / 1000.0f : 0.0f;
         }
