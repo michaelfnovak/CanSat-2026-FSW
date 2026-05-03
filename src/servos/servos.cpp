@@ -35,6 +35,10 @@ const float PROBE_RELEASE_ANGLE   = 90.0f;
 const float PAYLOAD_CLOSED_ANGLE  = 0.0f;
 const float PAYLOAD_RELEASE_ANGLE = 90.0f;
 
+// MEC nudge: how far to move probe/payload servos during a ground test command.
+// Small enough to confirm the servo is alive without straining the battery.
+const float MEC_NUDGE_DEG = 10.0f;
+
 // ================= UPDATE RATE =================
 
 static const float PARAGLIDER_UPDATE_HZ = 10.0f;
@@ -413,6 +417,16 @@ void releasePayload() {
         servoPayload.write((int)PAYLOAD_RELEASE_ANGLE);
         payloadReleased = true;
     }
+}
+
+// MEC bench-test nudges: move servo MEC_NUDGE_DEG degrees to confirm it is alive.
+// Does NOT set the released flag — flight state machine can still trigger real release.
+void nudgeProbe() {
+    servoProbe.write((int)(PROBE_CLOSED_ANGLE + MEC_NUDGE_DEG));
+}
+
+void nudgePayload() {
+    servoPayload.write((int)(PAYLOAD_CLOSED_ANGLE + MEC_NUDGE_DEG));
 }
 
 void setTargetLocation(float targetLat, float targetLon) {

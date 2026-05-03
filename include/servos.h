@@ -14,7 +14,14 @@ void resetServos();
 void releaseProbe();
 void releasePayload();
 
-// MEC: bench test flight surfaces (angles 0° / 90°, not the flight clamp range).
+// MEC bench-test helpers.
+// nudgeProbe / nudgePayload move the servo only MEC_NUDGE_DEG degrees (battery-safe).
+// They do NOT set the released flag, so the flight state machine can still trigger
+// the full release later. Use these instead of releaseProbe/releasePayload for
+// ground testing via the MEC command.
+void nudgeProbe();
+void nudgePayload();
+// Flight-surface test: ON -> 90°, OFF -> 0° (does not affect clamp range).
 void setFlightSurface1Test(bool active);
 void setFlightSurface2Test(bool active);
 

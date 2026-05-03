@@ -66,6 +66,11 @@ static Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
 static HardwareSerial& GPS_SERIAL = Serial1;
 static TinyGPSPlus gpsParser;
 
+// Raw NMEA debug buffer — captures the last complete sentence for USB Serial debug.
+static char lastNMEA[128] = "";
+static char nmeaBuf[128] = "";
+static uint8_t nmeaBufIdx = 0;
+
 void initSensors() {
     // Initialize I2C bus for BMP390, INA219, BNO055
     Wire.begin();
@@ -320,6 +325,18 @@ void updateSensors() {
         while (GPS_SERIAL.available() > 0) {
             char c = (char)GPS_SERIAL.read();
             gpsParser.encode(c);
+
+            // Build raw NMEA buffer for debug. Each sentence ends with \n.
+            if (c == '\n') {
+                if (nmeaBufIdx > 0) {
+                    nmeaBuf[nmeaBufIdx] = '\0';
+                    strncpy(lastNMEA, nmeaBuf, sizeof(lastNMEA) - 1);
+                    lastNMEA[sizeof(lastNMEA) - 1] = '\0';
+                }
+                nmeaBufIdx = 0;
+            } else if (nmeaBufIdx < sizeof(nmeaBuf) - 1) {
+                nmeaBuf[nmeaBufIdx++] = c;
+            }
         }
 
         if (gpsParser.location.isValid()) {
@@ -356,4 +373,8 @@ void updateSensors() {
         previousAltitude = currentAltitude;
     }
     lastUpdateTime = now;
+}
+
+const char* getLastNMEASentence() {
+    return lastNMEA;
 }

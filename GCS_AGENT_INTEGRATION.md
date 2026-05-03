@@ -85,7 +85,7 @@ This document is produced from the **flight software (FSW)** repository for the 
 
 - Expected prefix: **`CMD,<TEAM_ID>,`**
 - **Team ID must be `1057`** or the line is rejected.
-- Parser in `src/commands/Commands.cpp` requires a **comma after the command token** for every supported command (see **`CAL`** below).
+- Trailing commas are **not required**. `CMD,1057,CAL` is valid; so is `CMD,1057,CAL,`.
 
 ### 3.2 Supported commands
 
@@ -98,13 +98,14 @@ This document is produced from the **flight software (FSW)** repository for the 
 | **SIM** | `CMD,1057,SIM,ACTIVATE\r\n` | Enter simulation mode (requires ENABLE) |
 | **SIM** | `CMD,1057,SIM,DISABLE\r\n` | Leave simulation, clear stored sim flags |
 | **SIMP** | `CMD,1057,SIMP,101325\r\n` | Set simulated pressure (Pa); **only if simulation active** |
-| **CAL** | `CMD,1057,CAL,\r\n` | **Trailing comma required** — parser demands a comma after `CAL`. Zero altitude + reset packet count |
-| **MEC** | `CMD,1057,MEC,PROBE,ON\r\n` | `releaseProbe()` (ON only meaningful for latch) |
-| **MEC** | `CMD,1057,MEC,PAYLOAD,ON\r\n` | `releasePayload()` |
+| **CAL** | `CMD,1057,CAL\r\n` | Zero altitude + reset packet count |
+| **MEC** | `CMD,1057,MEC,PAYLOAD,ON\r\n` | Nudge canister-separation hatch servo 10° (bench-safe test; full release done by state machine at PROBE_RELEASE) |
+| **MEC** | `CMD,1057,MEC,EGG,ON\r\n` | Nudge egg-drop servo 10° (bench-safe test; full release done by state machine at PAYLOAD_RELEASE) |
 | **MEC** | `CMD,1057,MEC,FS1,ON\r\n` / `OFF` | Flight surface 1 test angle |
 | **MEC** | `CMD,1057,MEC,FS2,ON\r\n` / `OFF` | Flight surface 2 test angle |
 
-- **MEC** always sets an echo like `MEC<DEVICE><ON_OFF>` even if the device name is unknown (parser still returns true after echo). Prefer only the devices above.
+- MEC nudge commands move the servo only **10°** (configurable via `MEC_NUDGE_DEG` in `servos.cpp`) to confirm the servo is alive without straining the battery. They do **not** set the release flag — the state machine still controls full 90° actuation during flight.
+- **MEC** sets an echo like `MEC<DEVICE><ON_OFF>` (e.g. `MECPAYLOADON`).
 
 ### 3.3 Simulation (for GCS test profiles)
 
@@ -127,7 +128,7 @@ This document is produced from the **flight software (FSW)** repository for the 
 2. **Parse telemetry lines on `\r\n`**; split **22** CSV fields minimum.
 3. **Accept TEAM_ID `1057`** (or don’t hard-reject if you multi-team later).
 4. **Send commands with `CMD,1057,...`** and **CRLF**.
-5. **CAL:** use **`CMD,1057,CAL,`** (comma after `CAL`).
+5. **CAL:** `CMD,1057,CAL` works with or without a trailing comma.
 6. **STATE `PRELAUNCH`** is now the explicit string for the pre-pad phase (no longer `UNKNOWN`).
 7. **Lost-packet estimates:** `PACKET_COUNT` can jump after power cycle (EEPROM); **`CAL`** resets it.
 

@@ -153,13 +153,19 @@ bool processMECCommand(const char* device, const char* onOff) {
     
     bool activate = (strcmp(onOff, "ON") == 0);
     
-    if (strcmp(device, "PROBE") == 0) {
+    if (strcmp(device, "PAYLOAD") == 0) {
         if (activate) {
-            releaseProbe();
+            // PAYLOAD = canister separation hatch (servo on pin 2).
+            // Nudge only (10°) — confirms servo is alive without straining the battery.
+            // Full 90° release is triggered by the state machine at PROBE_RELEASE, not here.
+            nudgeProbe();
         }
-    } else if (strcmp(device, "PAYLOAD") == 0) {
+    } else if (strcmp(device, "EGG") == 0) {
         if (activate) {
-            releasePayload();
+            // EGG = egg drop mechanism (servo on pin 5).
+            // Nudge only (10°) — same battery-safety rationale as PAYLOAD above.
+            // Full 90° release is triggered by the state machine at PAYLOAD_RELEASE.
+            nudgePayload();
         }
     } else if (strcmp(device, "FS1") == 0) {
         // Flight surface 1 test: ON -> 90 deg, OFF -> 0 deg
@@ -202,25 +208,33 @@ bool parseCommand(const char* cmdString) {
     if (*ptr == '\0') {
         return false;
     }
-    
-    // Find comma after command
+
+    // Find the comma that separates the command token from its parameters.
+    // If no comma exists the remainder IS the command with no parameters
+    // (e.g. "CMD,1057,CAL" is valid; trailing comma is not required).
     const char* cmdStart = ptr;
     const char* cmdEnd = strchr(ptr, ',');
-    if (cmdEnd == nullptr) {
-        return false;
-    }
-    
-    // Extract command (CX, ST, SIM, SIMP, CAL, MEC)
+
     char cmd[8];
-    size_t cmdLen = cmdEnd - cmdStart;
-    if (cmdLen >= sizeof(cmd)) {
-        cmdLen = sizeof(cmd) - 1;
+    const char* params = "";
+    if (cmdEnd == nullptr) {
+        // No trailing comma — whole remainder is the command token, no params.
+        size_t cmdLen = strlen(cmdStart);
+        // Strip any trailing \r\n left by the line reader
+        while (cmdLen > 0 && (cmdStart[cmdLen-1] == '\r' || cmdStart[cmdLen-1] == '\n')) {
+            cmdLen--;
+        }
+        if (cmdLen == 0 || cmdLen >= sizeof(cmd)) return false;
+        strncpy(cmd, cmdStart, cmdLen);
+        cmd[cmdLen] = '\0';
+    } else {
+        // Normal case: comma found, params follow.
+        size_t cmdLen = cmdEnd - cmdStart;
+        if (cmdLen >= sizeof(cmd)) cmdLen = sizeof(cmd) - 1;
+        strncpy(cmd, cmdStart, cmdLen);
+        cmd[cmdLen] = '\0';
+        params = cmdEnd + 1;
     }
-    strncpy(cmd, cmdStart, cmdLen);
-    cmd[cmdLen] = '\0';
-    
-    // Get parameters
-    const char* params = cmdEnd + 1;
     
     // Process command
     if (strcmp(cmd, "CX") == 0) {

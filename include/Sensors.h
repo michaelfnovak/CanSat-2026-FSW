@@ -53,4 +53,8 @@ void setSimulatedPressure(float pressure_pa);  // Pressure in Pascals
 // Update sensor readings (call periodically)
 void updateSensors();
 
+// Debug: returns the last complete raw NMEA sentence received from the GPS UART.
+// Empty string if nothing has been received yet. For USB Serial debug only.
+const char* getLastNMEASentence();
+
 #endif // SENSORS_H
