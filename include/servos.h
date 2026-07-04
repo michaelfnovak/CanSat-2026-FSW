@@ -1,6 +1,11 @@
 #ifndef SERVOS_H
 #define SERVOS_H
 
+// NOTE: For this test flight, all servo/mechanism/flight-control-surface actuation
+// is DISABLED (sensors + telemetry only; see src/servos/servos.cpp). Every function
+// below is a no-op stub — the API is kept intact so callers (main.cpp, StateLogic.cpp,
+// Commands.cpp) do not need to change, and FlightState transitions are unaffected.
+
 // Attach pins, center flight surfaces, close probe/payload; clear release flags
 // and descent-controller state. Call before or with flight init; follow with
 // setTargetLocation if using autonomous glide.

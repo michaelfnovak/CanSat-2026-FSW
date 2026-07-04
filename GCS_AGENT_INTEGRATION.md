@@ -4,6 +4,8 @@ This document is produced from the **flight software (FSW)** repository for the 
 
 **Team ID:** `1057` (compiled into FSW; `getTeamID()` in telemetry and command parser).
 
+> **⚠ Test-flight notice — hardware actuation disabled:** For this launch, all servo mechanisms and paraglider flight-control surfaces are **software-disabled** (`src/servos/servos.cpp` — see file header). This CanSat separates from the rocket but takes **no physical action** afterward: no probe release, no egg release, no flight-surface deflection, no autonomous glide guidance. Only sensors and telemetry are being tested. The radio protocol below (telemetry fields, commands, `STATE` values) is **unchanged** — the GCS should not need any changes — but see §3.2 and §4 for the behavioral impact.
+
 ---
 
 ## 1. Physical link
@@ -66,10 +68,12 @@ This document is produced from the **flight software (FSW)** repository for the 
 | `ASCENT` | Ascending |
 | `APOGEE` | Transient; may appear rarely (logic often advances same tick) |
 | `DESCENT` | Descending before probe release |
-| `PROBE_RELEASE` | Probe-release regime |
-| `PAYLOAD_RELEASE` | Payload-release regime |
+| `PROBE_RELEASE` | Probe-release regime (name only — **no physical probe release or paraglider guidance occurs this flight**, see notice above) |
+| `PAYLOAD_RELEASE` | Payload-release regime (name only — **no physical egg release occurs this flight**) |
 | `LANDED` | Landed |
 | `UNKNOWN` | Invalid enum value (should not appear in normal operation) |
+
+> These state names/transition triggers (altitude, vertical velocity) are unchanged from the full-mission FSW — GCS state-machine displays and altitude/velocity-based transition logic do not need updating. Only the physical consequence of entering `PROBE_RELEASE` / `PAYLOAD_RELEASE` is different for this flight (none).
 
 ### 2.5 PACKET_COUNT behavior
 
@@ -99,13 +103,14 @@ This document is produced from the **flight software (FSW)** repository for the 
 | **SIM** | `CMD,1057,SIM,DISABLE\r\n` | Leave simulation, clear stored sim flags |
 | **SIMP** | `CMD,1057,SIMP,101325\r\n` | Set simulated pressure (Pa); **only if simulation active** |
 | **CAL** | `CMD,1057,CAL\r\n` | Zero altitude + reset packet count |
-| **MEC** | `CMD,1057,MEC,PAYLOAD,ON\r\n` | Nudge canister-separation hatch servo 10° (bench-safe test; full release done by state machine at PROBE_RELEASE) |
-| **MEC** | `CMD,1057,MEC,EGG,ON\r\n` | Nudge egg-drop servo 10° (bench-safe test; full release done by state machine at PAYLOAD_RELEASE) |
-| **MEC** | `CMD,1057,MEC,FS1,ON\r\n` / `OFF` | Flight surface 1 test angle |
-| **MEC** | `CMD,1057,MEC,FS2,ON\r\n` / `OFF` | Flight surface 2 test angle |
+| **MEC** | `CMD,1057,MEC,PAYLOAD,ON\r\n` | ~~Nudge canister-separation hatch servo 10°~~ **Disabled for this flight — no-op, see notice above** |
+| **MEC** | `CMD,1057,MEC,EGG,ON\r\n` | ~~Nudge egg-drop servo 10°~~ **Disabled for this flight — no-op** |
+| **MEC** | `CMD,1057,MEC,FS1,ON\r\n` / `OFF` | ~~Flight surface 1 test angle~~ **Disabled for this flight — no-op** |
+| **MEC** | `CMD,1057,MEC,FS2,ON\r\n` / `OFF` | ~~Flight surface 2 test angle~~ **Disabled for this flight — no-op** |
 
-- MEC nudge commands move the servo only **10°** (configurable via `MEC_NUDGE_DEG` in `servos.cpp`) to confirm the servo is alive without straining the battery. They do **not** set the release flag — the state machine still controls full 90° actuation during flight.
-- **MEC** sets an echo like `MEC<DEVICE><ON_OFF>` (e.g. `MECPAYLOADON`).
+- **All `MEC` device actions are currently no-ops** (`src/servos/servos.cpp` functions are stubbed out for this test flight — sensors/telemetry only, no physical actuation). The command is still **parsed, accepted, and echoed** exactly as before (protocol-compatible), but **no servo will move**. GCS should not expect any physical/visual confirmation from `MEC` commands during this flight.
+- **MEC** still sets an echo like `MEC<DEVICE><ON_OFF>` (e.g. `MECPAYLOADON`) regardless of the no-op — the echo alone does not confirm actuation occurred.
+- Normally (hardware enabled), MEC nudge commands move the servo only **10°** (configurable via `MEC_NUDGE_DEG` in `servos.cpp`) to confirm the servo is alive without straining the battery, without setting the release flag. That behavior is preserved in code (commented out) and can be restored post-flight-test.
 
 ### 3.3 Simulation (for GCS test profiles)
 
@@ -119,6 +124,7 @@ This document is produced from the **flight software (FSW)** repository for the 
 
 - Transition **PRELAUNCH → LAUNCH_PAD** requires **`telemetryActive()`** (CX on + XBee ready) **and** **`timeSetComplete()`** (successful **`ST`** once).
 - Operators should plan: **CX,ON**, **ST** (or **ST,GPS**), then pad/arm logic as per your checklist.
+- For this test flight, mission progression through all states (including `PROBE_RELEASE` and `PAYLOAD_RELEASE`) is expected to happen automatically from sensor data exactly as in a full mission — the only difference is **no servo/mechanism/flight-surface hardware will actuate** at any point. Do not expect probe separation, egg drop, or paraglider steering; this run is validating sensors + telemetry + state-machine timing only.
 
 ---
 
@@ -143,7 +149,8 @@ This document is produced from the **flight software (FSW)** repository for the 
 | XBee UART / line read | `src/comms/XBee.cpp` |
 | Team ID constant | `src/main.cpp` (`TEAM_ID`) |
 | Flight state strings | `src/flight/FlightState.cpp` |
+| Servo/flight-surface disable (this flight) | `src/servos/servos.cpp` (real implementation preserved under `#if 0`, public API stubbed to no-ops), `include/servos.h` |
 
 ---
 
-*Revision: generated from FSW tree; update when telemetry or command parser changes.*
+*Revision: generated from FSW tree; update when telemetry or command parser changes. Last updated to note servo/flight-control-surface hardware is disabled for the current test flight (sensors + telemetry validation only); revert this note when full-mission hardware is re-enabled.*

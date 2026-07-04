@@ -1,5 +1,15 @@
 // Servos: probe hatch (3), egg release (4), flight surfaces (1, 2).
 //
+// DISABLED for this test flight (sensors + telemetry only, no physical actuation):
+// this CanSat separates from the rocket but performs no servo/mechanism/flight-surface
+// actions. The original implementation below (probe/egg release, paraglider descent
+// guidance, flight-surface test hooks) is preserved but fully disabled inside the
+// `#if 0` block so no pins are ever attached or written. All public functions declared
+// in servos.h are still defined (as no-op stubs, near the bottom of this file) so that
+// main.cpp, StateLogic.cpp, and Commands.cpp continue to build and run unchanged.
+// FlightState transitions (StateLogic.cpp) do not depend on any of this and are
+// unaffected. Re-enable by restoring the real implementation and deleting the stubs.
+//
 // FlightState (StateLogic) selects the regime; main calls updateServos() after
 // updateFlightState(). PROBE_RELEASE: open probe once, then run staged paraglider
 // descent (internal DescentStage) at PARAGLIDER_UPDATE_HZ with GPS + baro + heading
@@ -12,6 +22,10 @@
 #include "FlightState.h"
 #include "Sensors.h"
 #include <Arduino.h>
+
+#if 0
+// Entire servo / flight-control-surface implementation disabled for this test
+// flight — see notice above. Nothing in this block is compiled.
 #include <Servo.h>
 #include <math.h>
 
@@ -557,5 +571,59 @@ void updateServos() {
         default:
             break;
     }
+}
+#endif // #if 0 — end of disabled servo / flight-control-surface implementation
+
+// ================= PUBLIC API (STUBS) =================
+// No-op implementations of the servos.h API. No pins are attached or written and
+// no autonomous flight-surface control runs. This preserves the function signatures
+// that main.cpp, StateLogic.cpp, and Commands.cpp already call so nothing else needs
+// to change; the flight state machine (StateLogic.cpp) continues to run normally
+// since it does not depend on servo/mechanism state.
+
+void initServos() {
+    // Hardware disabled for this test flight — sensors/telemetry only.
+}
+
+void resetServos() {
+    // Hardware disabled for this test flight — sensors/telemetry only.
+}
+
+void setFlightSurface1Test(bool active) {
+    (void)active;  // Flight surfaces disabled for this test flight.
+}
+
+void setFlightSurface2Test(bool active) {
+    (void)active;  // Flight surfaces disabled for this test flight.
+}
+
+void releaseProbe() {
+    // Probe release mechanism disabled for this test flight; no physical action.
+}
+
+void releasePayload() {
+    // Payload release mechanism disabled for this test flight; no physical action.
+}
+
+void nudgeProbe() {
+    // MEC bench-test nudge disabled for this test flight; no physical action.
+}
+
+void nudgePayload() {
+    // MEC bench-test nudge disabled for this test flight; no physical action.
+}
+
+void setTargetLocation(float targetLat, float targetLon) {
+    (void)targetLat;
+    (void)targetLon;  // Autonomous paraglider navigation disabled for this test flight.
+}
+
+void updateParagliderControl() {
+    // Autonomous paraglider flight control disabled for this test flight.
+}
+
+void updateServos() {
+    // No physical action taken for any FlightState; flight state machine in
+    // StateLogic.cpp still transitions normally and telemetry still reports it.
 }
 
